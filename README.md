@@ -8,7 +8,9 @@ Swift wrapper for [Chromaprint](https://github.com/acoustid/chromaprint), the au
 
 Add `https://github.com/wallisch/ChromaSwift` as Swift Package Manager dependency.
 
-Then just `import Chromaswift`
+Then just `import ChromaSwift`.
+
+You can also `import CChromaprint` to directly interact with chromaprints C interface.
 
 ### Generating fingerprints
 
