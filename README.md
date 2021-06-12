@@ -19,7 +19,7 @@ You can also `import CChromaprint` to directly interact with chromaprints C inte
 let audioFileURL = URL(fileURLWithPath: "test.mp3")
 let testFingerprint = try? ChromaSwift.generateFingerprint(fromURL: audioFileURL)
 
-// Optionally, specify the chromaprint algorithm (FingerprintingAlgorithm)
+// Optionally, specify the AudioFingerprintAlgorithm (Default: .test2)
 testFingerprint = try? ChromaSwift.generateFingerprint(fromURL: audioFileURL, algorithm: .test4)
 
 // And/Or the maximum duration in seconds to sample
@@ -30,7 +30,7 @@ testFingerprint = try? ChromaSwift.generateFingerprint(fromURL: audioFileURL, ma
 
 ``` swift
 // Get the algorithm that was used to generate the fingerprint
-let algorithm = testFingerprint.algorithm
+let algorithm = testFingerprint.algorithm // AudioFingerprintAlgorithm.test2
 
 // Get the duration in seconds that was sampled to generate the fingerprint
 let sampleDuration = testFingerprint.sampleDuration // 10.0
