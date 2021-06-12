@@ -6,9 +6,11 @@ let package = Package(
     platforms: [.macOS(.v10_14), .iOS(.v12), .tvOS(.v12)],
     products: [.library(name: "ChromaSwift", targets: ["ChromaSwift"])],
     targets: [
-        .target(name: "ChromaSwift", dependencies: ["CChromaprint"]),
+        .target(name: "ChromaSwift",
+                dependencies: ["CChromaprint"],
+                linkerSettings: [.linkedFramework("Accelerate")]),
         .target(name: "CChromaprint",
-                exclude:[
+                exclude: [
                     // fpcalc
                     "src/cmd",
                     // Other FFT Libs
@@ -56,6 +58,10 @@ let package = Package(
                     .headerSearchPath("src")
                 ]
         ),
+        .testTarget(
+            name: "ChromaSwiftTests",
+            dependencies: ["ChromaSwift"]
+        )
     ],
     cxxLanguageStandard: .cxx11
 )
