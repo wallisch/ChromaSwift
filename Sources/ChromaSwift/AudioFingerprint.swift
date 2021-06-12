@@ -4,12 +4,20 @@
 import Foundation
 import CChromaprint
 
+public enum AudioFingerprintAlgorithm: Int32 {
+    case test1 = 0
+    case test2
+    case test3
+    case test4
+    case test5
+}
+
 public class AudioFingerprint {
-    public let algorithm: FingerprintingAlgorithm
+    public let algorithm: AudioFingerprintAlgorithm
     public let sampleDuration: Double?
     var rawFingerprint: [UInt32]
 
-    init(rawFingerprint: [UInt32], algorithm: FingerprintingAlgorithm, duration: Double) {
+    init(rawFingerprint: [UInt32], algorithm: AudioFingerprintAlgorithm, duration: Double) {
         self.algorithm = algorithm
         self.sampleDuration = duration
         self.rawFingerprint = rawFingerprint
@@ -31,7 +39,7 @@ public class AudioFingerprint {
             throw ChromaSwiftError.invalidFingerprint
         }
 
-        self.algorithm = FingerprintingAlgorithm(rawValue: mutableAlgorithm)!
+        self.algorithm = AudioFingerprintAlgorithm(rawValue: mutableAlgorithm)!
         self.sampleDuration = duration
         self.rawFingerprint = [UInt32](UnsafeBufferPointer(start: rawFingerprintPointer, count: Int(rawFingerprintSize)))
     }

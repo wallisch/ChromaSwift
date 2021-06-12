@@ -5,14 +5,6 @@
 import AVFoundation
 import CChromaprint
 
-public enum FingerprintingAlgorithm: Int32 {
-    case test1 = 0
-    case test2
-    case test3
-    case test4
-    case test5
-}
-
 public enum ChromaSwiftError: Error {
     case invalidFile
     case noAudioTracks
@@ -21,7 +13,7 @@ public enum ChromaSwiftError: Error {
     case invalidFingerprint
 }
 
-public func generateFingerprint(fromURL url: URL, algorithm: FingerprintingAlgorithm = .test2, maxDuration: Double? = nil) throws -> AudioFingerprint {
+public func generateFingerprint(fromURL url: URL, algorithm: AudioFingerprintAlgorithm = .test2, maxDuration: Double? = nil) throws -> AudioFingerprint {
     let context = chromaprint_new(algorithm.rawValue)!
     defer {
         chromaprint_free(context)
