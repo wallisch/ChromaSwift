@@ -119,7 +119,6 @@ public class AudioFingerprint {
 
     public func similarity(to fingerprint: AudioFingerprint) -> Double? {
         guard let otherRawHash = fingerprint.rawHash else { return nil }
-        if algorithm != fingerprint.algorithm { return nil }
         return similarity(to: otherRawHash)
     }
 }
