@@ -4,28 +4,55 @@
 import Foundation
 import CChromaprint
 
-public enum AudioFingerprintAlgorithm: Int32 {
-    case test1 = 0
-    case test2
-    case test3
-    case test4
-    case test5
-}
-
 public class AudioFingerprint {
-    public let algorithm: AudioFingerprintAlgorithm
-    public let sampleDuration: Double?
+    public let algorithm: Algorithm
+    public let duration: Double
+
     var rawFingerprint: [UInt32]
 
-    init(rawFingerprint: [UInt32], algorithm: AudioFingerprintAlgorithm, duration: Double) {
+    public enum Error: Swift.Error {
+        case fingerprintingFailed
+        case invalidFingerprint
+    }
+
+    public enum Algorithm: Int32 {
+        case test1 = 0
+        case test2
+        case test3
+        case test4
+        case test5
+    }
+
+    init(from rawFingerprint: [UInt32], algorithm: Algorithm, duration: Double) {
         self.algorithm = algorithm
-        self.sampleDuration = duration
+        self.duration = duration
         self.rawFingerprint = rawFingerprint
     }
 
-    public init(fingerprint: String, duration: Double? = nil) throws {
+    public convenience init(from url: URL, algorithm: Algorithm = .test2, maxDuration: Double? = 120) throws {
+        let context = chromaprint_new(algorithm.rawValue)!
+        defer {
+            chromaprint_free(context)
+        }
+
+        let duration = try AudioDecoder.feed(into: context, from: url, maxDuration: maxDuration)
+
+        var rawFingerprintPointer: UnsafeMutablePointer<UInt32>? = UnsafeMutablePointer<UInt32>.allocate(capacity: 1)
+        defer {
+            rawFingerprintPointer?.deallocate()
+        }
+        var rawFingerprintSize = Int32(0)
+
+        if chromaprint_get_raw_fingerprint(context, &rawFingerprintPointer, &rawFingerprintSize) != 1 {
+            throw Error.fingerprintingFailed
+        }
+
+        self.init(from: [UInt32](UnsafeBufferPointer(start: rawFingerprintPointer, count: Int(rawFingerprintSize))), algorithm: algorithm, duration: duration)
+    }
+
+    public convenience init(from fingerprint: String, duration: Double) throws {
         guard var mutableFingerprint = fingerprint.cString(using: .ascii) else {
-            throw ChromaSwiftError.invalidFingerprint
+            throw Error.invalidFingerprint
         }
 
         var rawFingerprintPointer: UnsafeMutablePointer<UInt32>? = UnsafeMutablePointer<UInt32>.allocate(capacity: 1)
@@ -33,15 +60,13 @@ public class AudioFingerprint {
             rawFingerprintPointer?.deallocate()
         }
         var rawFingerprintSize = Int32(0)
-        var mutableAlgorithm = Int32(0)
+        var algorithm = Int32(0)
 
-        if chromaprint_decode_fingerprint(&mutableFingerprint, Int32(mutableFingerprint.count), &rawFingerprintPointer, &rawFingerprintSize, &mutableAlgorithm, 1) != 1 {
-            throw ChromaSwiftError.invalidFingerprint
+        if chromaprint_decode_fingerprint(&mutableFingerprint, Int32(mutableFingerprint.count), &rawFingerprintPointer, &rawFingerprintSize, &algorithm, 1) != 1 {
+            throw Error.invalidFingerprint
         }
 
-        self.algorithm = AudioFingerprintAlgorithm(rawValue: mutableAlgorithm)!
-        self.sampleDuration = duration
-        self.rawFingerprint = [UInt32](UnsafeBufferPointer(start: rawFingerprintPointer, count: Int(rawFingerprintSize)))
+        self.init(from: [UInt32](UnsafeBufferPointer(start: rawFingerprintPointer, count: Int(rawFingerprintSize))), algorithm: Algorithm(rawValue: algorithm)!, duration: duration)
     }
 
     public var fingerprint: String? {

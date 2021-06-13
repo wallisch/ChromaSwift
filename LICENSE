@@ -2,7 +2,7 @@ MIT License
 
 Copyright (c) 2010-2016 Lukas Lalinsky for chromaprint
 https://github.com/acoustid/chromaprint
-Copyright (c) 2016 David Dias for substantial parts of ChromaSwift.decodeAudio()
+Copyright (c) 2016 David Dias for substantial parts of AudioDecoder.swift
 https://github.com/NeoTeo/fingerprinter-chromaprint
 Copyright (c) 2021 Philipp Wallisch for any other files
 
