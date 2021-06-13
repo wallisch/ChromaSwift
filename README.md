@@ -1,16 +1,18 @@
 # ChromaSwift
 
+![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20iOS%20%7C%20tvOS-inactive)
+[![Swift](https://img.shields.io/badge/Swift-5-orange)](https://swift.org/)
+[![SPM](https://img.shields.io/badge/SPM-compatible-success)](https://swift.org/package-manager/)
+
 Swift wrapper for [Chromaprint](https://github.com/acoustid/chromaprint), the audio fingerprint library of the [AcoustID](https://acoustid.org/) project.
 
+## Installation
+
+Add `https://github.com/wallisch/ChromaSwift` as SPM dependency and `import ChromaSwift`.
+
+*Note: You can also `import CChromaprint` to directly interact with Chromaprints C interface.*
+
 ## Usage
-
-### Installation
-
-Add `https://github.com/wallisch/ChromaSwift` as Swift Package Manager dependency.
-
-Then just `import ChromaSwift`.
-
-You can also `import CChromaprint` to directly interact with chromaprints C interface.
 
 ### Generating fingerprints
 
@@ -22,7 +24,7 @@ let testFingerprint = try? AudioFingerprint(from: audioFileURL)
 // Optionally, specify the AudioFingerprintAlgorithm (Default: .test2)
 testFingerprint = try? AudioFingerprint(from: audioFileURL, algorithm: .test4)
 
-// And / Or the maximum duration to sample in seconds
+// And / Or the maximum duration to sample in seconds (Default: 120)
 testFingerprint = try? AudioFingerprint(from: audioFileURL, maxDuration: 10.0)
 ```
 
@@ -57,13 +59,13 @@ newFingerprint?.similarity(to: "01110100010011101010100110100100") // 1.0
 // Throwing calls throw either AudioDecoder.Error or AudioFingerprint.Error
 do {
     let audioFileURL = URL(fileURLWithPath: "invalid.mp3")
-    try? AudioFingerprint(from: audioFileURL)
+    try AudioFingerprint(from: audioFileURL)
 } catch {
     // AudioDecoder.Error.invalidFile
 }
 
 do {
-    try? AudioFingerprint(from: "invalid")
+    try AudioFingerprint(from: "invalid")
 } catch {
     // AudioFingerprint.Error.invalidFingerprint
 }
