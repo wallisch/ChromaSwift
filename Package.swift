@@ -63,7 +63,8 @@ let package = Package(
         ),
         .testTarget(
             name: "ChromaSwiftTests",
-            dependencies: ["ChromaSwift"]
+            dependencies: ["ChromaSwift"],
+            resources: [.copy("Resources")]
         ),
         .testTarget(
             name: "CChromaprintTests",

@@ -25,6 +25,7 @@ let testFingerprint = try? AudioFingerprint(from: audioFileURL)
 testFingerprint = try? AudioFingerprint(from: audioFileURL, algorithm: .test4)
 
 // And / Or the maximum duration to sample in seconds (Default: 120)
+// Pass nil to fingerprint the entire file
 testFingerprint = try? AudioFingerprint(from: audioFileURL, maxDuration: 10.0)
 ```
 
@@ -58,14 +59,14 @@ newFingerprint?.similarity(to: "01110100010011101010100110100100") // 1.0
 ``` swift
 // Throwing calls throw either AudioDecoder.Error or AudioFingerprint.Error
 do {
-    let audioFileURL = URL(fileURLWithPath: "invalid.mp3")
+    let audioFileURL = URL(fileURLWithPath: "Invalid.mp3")
     try AudioFingerprint(from: audioFileURL)
 } catch {
     // AudioDecoder.Error.invalidFile
 }
 
 do {
-    try AudioFingerprint(from: "invalid")
+    try AudioFingerprint(from: "Invalid")
 } catch {
     // AudioFingerprint.Error.invalidFingerprint
 }
