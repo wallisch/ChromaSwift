@@ -89,4 +89,15 @@ class ChromaSwiftTests: XCTestCase {
 
         XCTAssertNil(result.similarity(to: "Invalid"))
     }
+
+    func testAcoustIDLookup() throws {
+        let result = try AudioFingerprint(from: backbeatURL)
+
+        // Test API key from https://acoustid.org/webservice
+        let acoustID = AcoustID(apiKey: "U367RxIuCAA")
+
+        let results = acoustID.lookup(result)
+        XCTAssertNotNil(results)
+        XCTAssertEqual(results?.first!.score, 0.919154)
+    }
 }
