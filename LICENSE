@@ -1,10 +1,10 @@
 MIT License
 
-Copyright (c) 2010-2016 Lukas Lalinsky for chromaprint
+Copyright (c) 2010-2016 Lukas Lalinsky on chromaprint
 https://github.com/acoustid/chromaprint
-Copyright (c) 2016 David Dias for substantial parts of AudioDecoder.swift
+Copyright (c) 2016 David Dias on substantial parts of AudioDecoder.swift
 https://github.com/NeoTeo/fingerprinter-chromaprint
-Copyright (c) 2021 Philipp Wallisch for any other code
+Copyright (c) 2021 Philipp Wallisch on any other code
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
