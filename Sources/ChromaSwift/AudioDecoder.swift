@@ -29,8 +29,10 @@ public class AudioDecoder {
         }
         let audioTrack = audioTracks.first!
 
+        let sampleRate = chromaprint_get_sample_rate(context)
         let outputSettings: [String: Int] = [
             AVFormatIDKey: Int(kAudioFormatLinearPCM),
+            AVSampleRateKey: Int(sampleRate),
             AVLinearPCMIsBigEndianKey: 0,
             AVLinearPCMIsFloatKey: 0,
             AVLinearPCMBitDepthKey: 16,
@@ -41,29 +43,25 @@ public class AudioDecoder {
         let duration = CMTimeGetSeconds(audioTrack.timeRange.duration)
         let maxSampleDuration = maxSampleDuration ?? duration
 
-        var sampleRate: Int32?
         var sampleChannels: Int32?
         for description in audioTrack.formatDescriptions {
             let audioDescription = description as! CMAudioFormatDescription
             let basicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(audioDescription)?.pointee
-            if basicDescription?.mSampleRate != 0 {
-                sampleRate = Int32((basicDescription?.mSampleRate)!)
-            }
             if basicDescription?.mChannelsPerFrame != 0 {
                 sampleChannels = Int32((basicDescription?.mChannelsPerFrame)!)
             }
         }
-        guard let rate = sampleRate, let channels = sampleChannels else {
+        guard let channels = sampleChannels else {
             throw Error.invalidAudioTrack
         }
 
-        if chromaprint_start(context, rate, channels) != 1 {
+        if chromaprint_start(context, sampleRate, channels) != 1 {
             throw Error.feedingFailed
         }
 
         reader.add(trackOutput)
         reader.startReading()
-        var remainingSamples = Int32((maxSampleDuration * Double(channels) * Double(rate)).rounded(.up))
+        var remainingSamples = Int32((maxSampleDuration * Double(channels) * Double(sampleRate)).rounded(.up))
 
         while reader.status == AVAssetReader.Status.reading {
             if let sampleBufferRef = trackOutput.copyNextSampleBuffer() {
