@@ -13,7 +13,7 @@ public class AudioDecoder {
         case feedingFailed
     }
 
-    static func feed(into context: OpaquePointer, from url: URL, maxDuration: Double?) throws -> Double {
+    static func feed(into context: OpaquePointer, from url: URL, maxSampleDuration: Double?) throws -> Double {
         let asset = AVURLAsset(url: url)
         let reader: AVAssetReader
 
@@ -39,7 +39,7 @@ public class AudioDecoder {
         let trackOutput = AVAssetReaderTrackOutput(track: audioTrack, outputSettings: outputSettings)
 
         let duration = CMTimeGetSeconds(audioTrack.timeRange.duration)
-        let maxDuration = maxDuration ?? duration
+        let maxSampleDuration = maxSampleDuration ?? duration
 
         var sampleRate: Int32?
         var sampleChannels: Int32?
@@ -63,7 +63,7 @@ public class AudioDecoder {
 
         reader.add(trackOutput)
         reader.startReading()
-        var remainingSamples = Int32((maxDuration * Double(channels) * Double(rate)).rounded(.up))
+        var remainingSamples = Int32((maxSampleDuration * Double(channels) * Double(rate)).rounded(.up))
 
         while reader.status == AVAssetReader.Status.reading {
             if let sampleBufferRef = trackOutput.copyNextSampleBuffer() {
@@ -98,6 +98,6 @@ public class AudioDecoder {
             throw Error.feedingFailed
         }
 
-        return min(maxDuration, duration)
+        return duration
     }
 }

@@ -29,13 +29,13 @@ public class AudioFingerprint {
         self.rawFingerprint = rawFingerprint
     }
 
-    public convenience init(from url: URL, algorithm: Algorithm = .test2, maxDuration: Double? = 120) throws {
+    public convenience init(from url: URL, algorithm: Algorithm = .test2, maxSampleDuration: Double? = 120) throws {
         let context = chromaprint_new(algorithm.rawValue)!
         defer {
             chromaprint_free(context)
         }
 
-        let duration = try AudioDecoder.feed(into: context, from: url, maxDuration: maxDuration)
+        let duration = try AudioDecoder.feed(into: context, from: url, maxSampleDuration: maxSampleDuration)
 
         var rawFingerprintPointer: UnsafeMutablePointer<UInt32>? = UnsafeMutablePointer<UInt32>.allocate(capacity: 1)
         defer {

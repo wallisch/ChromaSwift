@@ -22,11 +22,12 @@ let audioFileURL = URL(fileURLWithPath: "test.mp3")
 let testFingerprint = try? AudioFingerprint(from: audioFileURL)
 
 // Optionally, specify the AudioFingerprintAlgorithm (Default: .test2)
+// Note that only .test2 fingerprints can be looked up at the AcoustID service
 testFingerprint = try? AudioFingerprint(from: audioFileURL, algorithm: .test4)
 
 // And / Or the maximum duration to sample in seconds (Default: 120)
-// Pass nil to fingerprint the entire file
-testFingerprint = try? AudioFingerprint(from: audioFileURL, maxDuration: 10.0)
+// Pass nil to sample the entire file
+testFingerprint = try? AudioFingerprint(from: audioFileURL, maxSampleDuration: 10.0)
 ```
 
 ### Handling fingerprints
@@ -35,8 +36,8 @@ testFingerprint = try? AudioFingerprint(from: audioFileURL, maxDuration: 10.0)
 // Get the algorithm that was used to generate the fingerprint
 let algorithm = testFingerprint.algorithm // AudioFingerprint.Algorithm.test2
 
-// Get the duration in seconds that was sampled to generate the fingerprint
-let duration = testFingerprint.duration // 10.0
+// Get the duration of the entire file in seconds
+let duration = testFingerprint.duration // 46.0
 
 // Get the fingerprint as base64 representation
 let base64FingerprintString = testFingerprint.fingerprint
@@ -44,7 +45,7 @@ let base64FingerprintString = testFingerprint.fingerprint
 // Get the fingerprints hash as binary string
 let binaryHashString = testFingerprint.hash // "01110100010011101010100110100100"
 
-// Instantiate a fingerprint object from its base64 representation
+// Instantiate a fingerprint object from its base64 representation and entire file duration
 let newFingerprint = try? AudioFingerprint(from: base64FingerprintString!, duration: duration)
 
 // Get similarity to other fingerprint object (0.0 to 1.0)

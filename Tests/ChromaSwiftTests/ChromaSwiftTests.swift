@@ -57,18 +57,18 @@ class ChromaSwiftTests: XCTestCase {
         XCTAssertEqual(constructedResult.algorithm, AudioFingerprint.Algorithm.test4)
     }
 
-    func testFingerprintMaxDuration() throws {
+    func testFingerprintMaxSampleDuration() throws {
         let result = try AudioFingerprint(from: fireworksURL)
         XCTAssertEqual(result.algorithm, AudioFingerprint.Algorithm.test2)
-        XCTAssertEqual(Int(result.duration), 120)
+        XCTAssertEqual(Int(result.duration), 191)
         XCTAssertEqual(result.fingerprint, fireworksFingerprint)
         XCTAssertEqual(result.hash, fireworksHash)
 
-        let longResult = try AudioFingerprint(from: fireworksURL, maxDuration: nil)
-        XCTAssertEqual(Int(longResult.duration), 191)
+        let longResult = try AudioFingerprint(from: fireworksURL, maxSampleDuration: nil)
+        XCTAssertGreaterThan(longResult.fingerprint!.count, result.fingerprint!.count)
 
-        let shortResult = try AudioFingerprint(from: fireworksURL, maxDuration: 10)
-        XCTAssertEqual(Int(shortResult.duration), 10)
+        let shortResult = try AudioFingerprint(from: fireworksURL, maxSampleDuration: 10.0)
+        XCTAssertLessThan(shortResult.fingerprint!.count, result.fingerprint!.count)
     }
 
     func testSimilarity() throws {
@@ -111,19 +111,19 @@ class ChromaSwiftTests: XCTestCase {
         waitForExpectations(timeout: 4.0)
     }
 
-    func testAcoustIDNoResults() throws {
-        let fingerprint = try AudioFingerprint(from: fireworksURL)
+    func testAcoustIDInvalidFingerprint() throws {
+        let fingerprint = try AudioFingerprint(from: backbeatURL, algorithm: .test4)
 
-        let session = Session(cassetteName: "Fixtures/noResults", testBundle: Bundle.module)
+        let session = Session(cassetteName: "Fixtures/invalidFingerprint", testBundle: Bundle.module)
         let acoustID = AcoustID(apiKey: "zfkYWDrOqAk", timeout: 3.0, session: session)
 
-        let expectation = expectation(description: "AcoustID successful API lookup without results")
+        let expectation = expectation(description: "AcoustID invalid fingerprint")
         acoustID.lookup(fingerprint) { response in
             switch response {
             case .failure(let error):
-                XCTFail("\(error)")
+                XCTAssertEqual(error, AcoustID.Error.invalidFingerprint)
             case .success(let results):
-                XCTAssertTrue(results.isEmpty)
+                XCTFail("\(results)")
             }
             expectation.fulfill()
         }
@@ -132,7 +132,7 @@ class ChromaSwiftTests: XCTestCase {
     }
 
     func testAcoustIDSuccess() throws {
-        let fingerprint = try AudioFingerprint(from: backbeatURL)
+        let fingerprint = try AudioFingerprint(from: fireworksURL)
 
         let session = Session(cassetteName: "Fixtures/success", testBundle: Bundle.module)
         let acoustID = AcoustID(apiKey: "zfkYWDrOqAk", timeout: 3.0, session: session)
@@ -143,8 +143,10 @@ class ChromaSwiftTests: XCTestCase {
             case .failure(let error):
                 XCTFail("\(error)")
             case .success(let results):
-                XCTAssertEqual(results.first?.id, "8b185b60-f681-484b-96ff-9554139097b7")
-                XCTAssertEqual(results.first?.score, 0.919154)
+                XCTAssertEqual(results.first?.id, "d4b1fc41-ec52-4141-90bd-009ff6c308a7")
+                XCTAssertEqual(results.first?.score, 0.996197)
+                XCTAssertEqual(results.first?.recordings?.first?.title, "Fireworks")
+                XCTAssertEqual(results.first?.recordings?.first?.artists?.first?.name, "Alexander Nakarada")
             }
             expectation.fulfill()
         }

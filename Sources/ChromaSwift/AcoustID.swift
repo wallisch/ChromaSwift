@@ -97,6 +97,8 @@ public class AcoustID {
                 }
                 if let apiError = decodedResponse.error {
                     switch apiError.code {
+                    case 3:
+                        completion(.failure(Error.invalidFingerprint))
                     case 4:
                         completion(.failure(Error.invalidApiKey))
                     default:
