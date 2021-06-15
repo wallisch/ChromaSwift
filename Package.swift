@@ -58,24 +58,28 @@ let package = Package(
                 // Main
                 "src/chromaprint.cpp"
             ],
+            cSettings: [
+                .define("HAVE_LRINTF"),
+                .unsafeFlags(["-Wno-conversion"], .when(platforms: [.iOS, .tvOS]))
+            ],
             cxxSettings: [
                 .define("USE_VDSP"),
                 .define("HAVE_ROUND"),
-                .define("HAVE_LRINTF"),
                 .headerSearchPath("src"),
-                .unsafeFlags(["-Wno-macro-redefined"])
+                .unsafeFlags(["-Wno-macro-redefined"], .when(configuration: .debug))
             ],
             linkerSettings: [.linkedFramework("Accelerate")]
         ),
         .testTarget(
             name: "ChromaSwiftTests",
             dependencies: ["ChromaSwift", "DVR"],
-            resources: [.copy("Fixtures"), .copy("Resources")]
+            resources: [.copy("Fixtures"), .copy("Audio")]
         ),
         .testTarget(
             name: "CChromaprintTests",
             dependencies: ["CChromaprint"]
         )
     ],
+    cLanguageStandard: .c11,
     cxxLanguageStandard: .cxx11
 )
