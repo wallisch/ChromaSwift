@@ -60,7 +60,10 @@ let package = Package(
             ],
             cxxSettings: [
                 .define("USE_VDSP"),
-                .headerSearchPath("src")
+                .define("HAVE_ROUND"),
+                .define("HAVE_LRINTF"),
+                .headerSearchPath("src"),
+                .unsafeFlags(["-Wno-macro-redefined"])
             ],
             linkerSettings: [.linkedFramework("Accelerate")]
         ),
