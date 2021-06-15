@@ -1,8 +1,9 @@
 // Copyright (c) 2021 Philipp Wallisch
 // Distributed under the MIT license, see the LICENSE file for details.
 
+import DVR
 import XCTest
-import ChromaSwift
+@testable import ChromaSwift
 
 class ChromaSwiftTests: XCTestCase {
     let backbeatURL = Bundle.module.url(forResource: "Backbeat", withExtension: "mp3", subdirectory: "Resources")!
@@ -90,14 +91,64 @@ class ChromaSwiftTests: XCTestCase {
         XCTAssertNil(result.similarity(to: "Invalid"))
     }
 
-    func testAcoustIDLookup() throws {
-        let result = try AudioFingerprint(from: backbeatURL)
+    func testAcoustIDInvalidAPIKey() throws {
+        let fingerprint = try AudioFingerprint(from: backbeatURL)
 
-        // Test API key from https://acoustid.org/webservice
-        let acoustID = AcoustID(apiKey: "U367RxIuCAA")
+        let session = Session(cassetteName: "Fixtures/invalidAPIKey", testBundle: Bundle.module)
+        let acoustID = AcoustID(apiKey: "zfkYWDrUqAk", timeout: 3.0, session: session)
 
-        let results = acoustID.lookup(result)
-        XCTAssertNotNil(results)
-        XCTAssertEqual(results?.first!.score, 0.919154)
+        let expectation = expectation(description: "AcoustID invalid API key")
+        acoustID.lookup(fingerprint) { response in
+            switch response {
+            case .failure(let error):
+                XCTAssertEqual(error, AcoustID.Error.invalidApiKey)
+            case .success(_):
+                XCTFail()
+            }
+            expectation.fulfill()
+        }
+
+        waitForExpectations(timeout: 4.0)
+    }
+
+    func testAcoustIDNoResults() throws {
+        let fingerprint = try AudioFingerprint(from: fireworksURL)
+
+        let session = Session(cassetteName: "Fixtures/noResults", testBundle: Bundle.module)
+        let acoustID = AcoustID(apiKey: "zfkYWDrOqAk", timeout: 3.0, session: session)
+
+        let expectation = expectation(description: "AcoustID successful API lookup without results")
+        acoustID.lookup(fingerprint) { response in
+            switch response {
+            case .failure(_):
+                XCTFail()
+            case .success(let results):
+                XCTAssertTrue(results.isEmpty)
+            }
+            expectation.fulfill()
+        }
+
+        waitForExpectations(timeout: 4.0)
+    }
+
+    func testAcoustIDSuccess() throws {
+        let fingerprint = try AudioFingerprint(from: backbeatURL)
+
+        let session = Session(cassetteName: "Fixtures/success", testBundle: Bundle.module)
+        let acoustID = AcoustID(apiKey: "zfkYWDrOqAk", timeout: 3.0, session: session)
+
+        let expectation = expectation(description: "AcoustID successful API lookup")
+        acoustID.lookup(fingerprint) { response in
+            switch response {
+            case .failure(_):
+                XCTFail()
+            case .success(let results):
+                XCTAssertEqual(results.first?.id, "8b185b60-f681-484b-96ff-9554139097b7")
+                XCTAssertEqual(results.first?.score, 0.919154)
+            }
+            expectation.fulfill()
+        }
+
+        waitForExpectations(timeout: 4.0)
     }
 }

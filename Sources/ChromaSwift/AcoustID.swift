@@ -5,73 +5,111 @@ import Foundation
 
 public class AcoustID {
     let lookupEndpoint = "https://api.acoustid.org/v2/lookup"
+
+    let session: URLSession
     let apiKey: String
     let timeout: Double
 
-    struct Response: Codable {
-        let status: String
-        let results: [Result]?
+    public enum Error: Swift.Error {
+        case invalidFingerprint
+        case invalidURL
+        case networkFail
+        case parseFail
+        case apiFail
+        case invalidApiKey
     }
 
-    public struct Result: Codable {
-        let id: String
+    struct APIResponse: Codable {
+        let status: String
+        let error: APIError?
+        let results: [APIResult]?
+    }
+
+    struct APIError: Codable {
+        let code: Int
+        let message: String
+    }
+
+    public struct APIResult: Codable {
+        public let id: String
         public let score: Double
         public let recordings: [Recording]?
     }
 
     public struct Recording: Codable {
-        let id: String
+        public let id: String
         public let duration: Int?
         public let title: String?
         public let artists: [Artist]?
-        public let releasegroups: [Releasegroup]?
+        public let releasegroups: [ReleaseGroup]?
     }
 
     public struct Artist: Codable {
-        let id: String
+        public let id: String
         public let name: String?
     }
 
-    public struct Releasegroup: Codable {
-        let id: String
+    public struct ReleaseGroup: Codable {
+        public let id: String
         public let type: String?
         public let title: String?
     }
 
-    public init(apiKey: String, timeout: Double = 3.0) {
+    init(apiKey: String, timeout: Double, session: URLSession) {
+        self.session = session
         self.apiKey = apiKey
         self.timeout = timeout
     }
 
-    public func lookup(_ fingerprint: AudioFingerprint) -> [Result]? {
-        guard let base64Fingerprint = fingerprint.fingerprint else { return nil }
+    public convenience init(apiKey: String, timeout: Double = 3.0) {
+        self.init(apiKey: apiKey, timeout: timeout, session: .shared)
+    }
+
+    public func lookup(_ fingerprint: AudioFingerprint, completion: @escaping (Result<[APIResult], Error>) -> Void) {
+        guard let base64Fingerprint = fingerprint.fingerprint else {
+            completion(.failure(Error.invalidFingerprint))
+            return
+        }
 
         let query = [
             URLQueryItem(name: "client", value: apiKey),
+            URLQueryItem(name: "meta", value: "recordings+releasegroups+compress"),
             URLQueryItem(name: "duration", value: String(Int(fingerprint.duration))),
-            URLQueryItem(name: "fingerprint", value: base64Fingerprint),
-            URLQueryItem(name: "meta", value: "recordings+releasegroups+compress")
+            URLQueryItem(name: "fingerprint", value: base64Fingerprint)
         ]
         var lookupURLComponents = URLComponents(string: lookupEndpoint)!
         lookupURLComponents.queryItems = query
 
-        var request = URLRequest(url: lookupURLComponents.url!)
+        guard let lookupURL = lookupURLComponents.url else {
+            completion(.failure(Error.invalidURL))
+            return
+        }
+        var request = URLRequest(url: lookupURL)
         request.timeoutInterval = timeout
 
-        var results: [Result]?
-        let semaphore = DispatchSemaphore(value: 0)
-        let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
-            if let data = data {
-                let decodedResponse = try? JSONDecoder().decode(Response.self, from: data)
-                results = decodedResponse?.results
+        session.dataTask(with: request) { (data, response, error) in
+            if error != nil {
+                completion(.failure(Error.networkFail))
+            } else if let data = data {
+                guard let decodedResponse = try? JSONDecoder().decode(APIResponse.self, from: data) else {
+                    completion(.failure(Error.parseFail))
+                    return
+                }
+                if let apiError = decodedResponse.error {
+                    switch apiError.code {
+                    case 4:
+                        completion(.failure(Error.invalidApiKey))
+                    default:
+                        completion(.failure(Error.apiFail))
+                    }
+                    return
+                }
+                guard let results = decodedResponse.results else {
+                    completion(.success([]))
+                    return
+                }
+                completion(.success(results))
             }
-            semaphore.signal()
-        }
-
-        task.resume()
-
-        _ = semaphore.wait(timeout: .distantFuture)
-
-        return results
+        }.resume()
     }
 }

@@ -5,6 +5,9 @@ let package = Package(
     name: "ChromaSwift",
     platforms: [.macOS(.v10_14), .iOS(.v12), .tvOS(.v12)],
     products: [.library(name: "ChromaSwift", targets: ["ChromaSwift"])],
+    dependencies: [
+        .package(url: "https://github.com/venmo/DVR", from: "2.1.0")
+    ],
     targets: [
         .target(
             name: "ChromaSwift",
@@ -63,8 +66,8 @@ let package = Package(
         ),
         .testTarget(
             name: "ChromaSwiftTests",
-            dependencies: ["ChromaSwift"],
-            resources: [.copy("Resources")]
+            dependencies: ["ChromaSwift", "DVR"],
+            resources: [.copy("Fixtures"), .copy("Resources")]
         ),
         .testTarget(
             name: "CChromaprintTests",

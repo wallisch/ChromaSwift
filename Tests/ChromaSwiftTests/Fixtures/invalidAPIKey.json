@@ -1,0 +1,31 @@
+{
+  "name" : "invalidAPIKey",
+  "interactions" : [
+    {
+      "response" : {
+        "status" : 400,
+        "body" : {
+          "error" : {
+            "message" : "invalid API key",
+            "code" : 4
+          },
+          "status" : "error"
+        },
+        "url" : "https:\/\/api.acoustid.org\/v2\/lookup?client=zfkYWDrUqAk&meta=recordings+releasegroups+compress&duration=46&fingerprint=AQABYJGikFSmJBCPijt6Hqkj_PjgH1l-XDyOnoeW48EFBqJ-4_BxHOeRT4Z_7IFPVLWRQ3sYwzJqW3iOixZeDdoTIeVRK7jE4znCPDrOHNcI8TnKI7wUNDryfvgfnDN6QjzRLsej48e5HbeCB9UHfzHEQ3TjYPrwu_gYdOXxnPg_nA_xED2PHlPy48eDZkW_47jEQufRE4auw8cXFtaP8MmOnMdvaA9jWEe95fiOS7LQMSHED2FzXDlOHn0ipDueHbIG_yhnhLlylMedCzkvXEcfQrxR9sh14YmOa8QTkegOb02RHx8q83h3nAoPvehF-NAx5cdzhF-OhsuR4w2h3WiO4-iPHSKHfsiz48ijC5VhadLRu9BeeD28o4-LB5cUCic0G4185BH2HN-OPkeOasM3vMoOzdBy4tWLOzxq4RXuC1utoi8eQRNF-OiOkjT8wzv6uHhwSaFwQotm1DvyYc_x7Qifo_h2fEOv7HB49PiNjzxqUcf3Yjdcn-gn4wruo2p-PGVhh_hxKmh_3Dr0qUQPn9ADH9ODP0hJ5TgCtWHQHP1xHNOhBw075DizI-eOO0en6bBr6Pi0A-XxeMIlHadQjxB11MqRY08edEOeoxqu41pQPYd7dM1x92ij9LiOv9jlwdXRS8YloTqe_LCyMAWeo6J4_MepZIde9CJ86Nh-9DnC72i47MhxaGqK5sdx9NgDkUM_5DlO5NGFyrA06ehdaIc3Hd7Rx8WDSwoFaB7RyDPyCHuOb0d_5Ki24xsuHhWJ5sR74w7RRr7w6Ti2q8HVo56OU0fVHOdhZaHx4xza8fh36Ip09IdP6PAxPcePMI9ytDtyvCG0G81xPOixByI7hPgOACQFEJQBBpgwiABlxAEAW8qIQgIBFahAAggiFAOEGAEIAVQQIIghgCjCIBDCAGEIMEgYAQxRggkgACCCCkGaQMQYYgQRQglBAASOIAAQIgRIBgQRwglCCBACGYIYAYwohIQRADggEEAMCYIAYIacY5BRgikhAECOiOMIIUggoVACQggBhDJAOGsEckQcRwhBAgkFIAICEAGBAUpIIBARQgiGABAAESCQFUwJYREx5SBFhDDAGEmEc4ZQQggxSiGoAAIEIAKJQg4RIhUQzAgjBAAOCASQQMIIQI0gZyOjEFNCAIUcEYcQJBBRCiIlhDAAKAQSMoII4RBDQAAhCABEKCAMU4AoAJgh5RgnAA",
+        "headers" : {
+          "Content-Length" : "71",
+          "Content-Type" : "application\/json; charset=UTF-8",
+          "x-envoy-upstream-service-time" : "83",
+          "Strict-Transport-Security" : "max-age=15724800; includeSubDomains",
+          "Date" : "Tue, 15 Jun 2021 10:49:02 GMT",
+          "Access-Control-Allow-Origin" : "*"
+        }
+      },
+      "request" : {
+        "url" : "https:\/\/api.acoustid.org\/v2\/lookup?client=zfkYWDrUqAk&meta=recordings+releasegroups+compress&duration=46&fingerprint=AQABYJGikFSmJBCPijt6Hqkj_PjgH1l-XDyOnoeW48EFBqJ-4_BxHOeRT4Z_7IFPVLWRQ3sYwzJqW3iOixZeDdoTIeVRK7jE4znCPDrOHNcI8TnKI7wUNDryfvgfnDN6QjzRLsej48e5HbeCB9UHfzHEQ3TjYPrwu_gYdOXxnPg_nA_xED2PHlPy48eDZkW_47jEQufRE4auw8cXFtaP8MmOnMdvaA9jWEe95fiOS7LQMSHED2FzXDlOHn0ipDueHbIG_yhnhLlylMedCzkvXEcfQrxR9sh14YmOa8QTkegOb02RHx8q83h3nAoPvehF-NAx5cdzhF-OhsuR4w2h3WiO4-iPHSKHfsiz48ijC5VhadLRu9BeeD28o4-LB5cUCic0G4185BH2HN-OPkeOasM3vMoOzdBy4tWLOzxq4RXuC1utoi8eQRNF-OiOkjT8wzv6uHhwSaFwQotm1DvyYc_x7Qifo_h2fEOv7HB49PiNjzxqUcf3Yjdcn-gn4wruo2p-PGVhh_hxKmh_3Dr0qUQPn9ADH9ODP0hJ5TgCtWHQHP1xHNOhBw075DizI-eOO0en6bBr6Pi0A-XxeMIlHadQjxB11MqRY08edEOeoxqu41pQPYd7dM1x92ij9LiOv9jlwdXRS8YloTqe_LCyMAWeo6J4_MepZIde9CJ86Nh-9DnC72i47MhxaGqK5sdx9NgDkUM_5DlO5NGFyrA06ehdaIc3Hd7Rx8WDSwoFaB7RyDPyCHuOb0d_5Ki24xsuHhWJ5sR74w7RRr7w6Ti2q8HVo56OU0fVHOdhZaHx4xza8fh36Ip09IdP6PAxPcePMI9ytDtyvCG0G81xPOixByI7hPgOACQFEJQBBpgwiABlxAEAW8qIQgIBFahAAggiFAOEGAEIAVQQIIghgCjCIBDCAGEIMEgYAQxRggkgACCCCkGaQMQYYgQRQglBAASOIAAQIgRIBgQRwglCCBACGYIYAYwohIQRADggEEAMCYIAYIacY5BRgikhAECOiOMIIUggoVACQggBhDJAOGsEckQcRwhBAgkFIAICEAGBAUpIIBARQgiGABAAESCQFUwJYREx5SBFhDDAGEmEc4ZQQggxSiGoAAIEIAKJQg4RIhUQzAgjBAAOCASQQMIIQI0gZyOjEFNCAIUcEYcQJBBRCiIlhDAAKAQSMoII4RBDQAAhCABEKCAMU4AoAJgh5RgnAA",
+        "method" : "GET"
+      },
+      "recorded_at" : 1623754142.229048
+    }
+  ]
+}

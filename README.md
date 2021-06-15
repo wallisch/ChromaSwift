@@ -54,7 +54,43 @@ newFingerprint?.similarity(to: testFingerprint) // 1.0
 newFingerprint?.similarity(to: "01110100010011101010100110100100") // 1.0
 
 ```
-### Error handling
+
+### Looking up fingerprints
+
+``` swift
+// Init the service with your AcoustID API key
+let acoustID = AcoustID(apiKey: "zfkYWDrOqAk")
+
+// Optionally, specify a timeout in seconds (Default: 3.0)
+let acoustID = AcoustID(apiKey: "zfkYWDrOqAk", timeout: 5.0)
+
+// Lookup an AudioFingerprint object
+acoustID.lookup(newFingerprint) { response in
+    switch response {
+    case .failure(let error):
+        // AcoustID.Error
+    case .success(let results):
+        // See AcoustID.APIResult for all available properties
+        for result in results {
+            // Get the matching score (0.0 to 1.0)
+            let score = result.score
+            for recording in result.recordings! {
+                // Get the song title
+                let title = recording.title
+
+                // Get the songs artists
+                let artists = recording.artists
+
+                // Get the songs release groups (Albums, Singles, etc.)
+                let releasegroups = recording.releasegroups
+            }
+        }
+    }
+}
+
+```
+
+### Handling errors
 
 ``` swift
 // Throwing calls throw either AudioDecoder.Error or AudioFingerprint.Error
