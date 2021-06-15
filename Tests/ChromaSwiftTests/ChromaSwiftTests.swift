@@ -16,18 +16,18 @@ class ChromaSwiftTests: XCTestCase {
 
     func testInvalidFile() {
         XCTAssertThrowsError(try AudioFingerprint(from: URL(fileURLWithPath: "Invalid.mp3"))) { error in
-            XCTAssertEqual(error as! AudioDecoder.Error, AudioDecoder.Error.invalidFile)
+            XCTAssertEqual(error as? AudioDecoder.Error, AudioDecoder.Error.invalidFile)
         }
 
         let licenseURL = Bundle.module.url(forResource: "LICENSE", withExtension: nil, subdirectory: "Resources")!
         XCTAssertThrowsError(try AudioFingerprint(from: licenseURL)) { error in
-            XCTAssertEqual(error as! AudioDecoder.Error, AudioDecoder.Error.invalidFile)
+            XCTAssertEqual(error as? AudioDecoder.Error, AudioDecoder.Error.invalidFile)
         }
     }
 
     func testInvalidFingerprint() {
         XCTAssertThrowsError(try AudioFingerprint(from: "Invalid", duration: 2.0)) { error in
-            XCTAssertEqual(error as! AudioFingerprint.Error, AudioFingerprint.Error.invalidFingerprint)
+            XCTAssertEqual(error as? AudioFingerprint.Error, AudioFingerprint.Error.invalidFingerprint)
         }
     }
 
@@ -102,8 +102,8 @@ class ChromaSwiftTests: XCTestCase {
             switch response {
             case .failure(let error):
                 XCTAssertEqual(error, AcoustID.Error.invalidApiKey)
-            case .success(_):
-                XCTFail()
+            case .success(let results):
+                XCTFail("\(results)")
             }
             expectation.fulfill()
         }
@@ -120,8 +120,8 @@ class ChromaSwiftTests: XCTestCase {
         let expectation = expectation(description: "AcoustID successful API lookup without results")
         acoustID.lookup(fingerprint) { response in
             switch response {
-            case .failure(_):
-                XCTFail()
+            case .failure(let error):
+                XCTFail("\(error)")
             case .success(let results):
                 XCTAssertTrue(results.isEmpty)
             }
@@ -140,8 +140,8 @@ class ChromaSwiftTests: XCTestCase {
         let expectation = expectation(description: "AcoustID successful API lookup")
         acoustID.lookup(fingerprint) { response in
             switch response {
-            case .failure(_):
-                XCTFail()
+            case .failure(let error):
+                XCTFail("\(error)")
             case .success(let results):
                 XCTAssertEqual(results.first?.id, "8b185b60-f681-484b-96ff-9554139097b7")
                 XCTAssertEqual(results.first?.score, 0.919154)

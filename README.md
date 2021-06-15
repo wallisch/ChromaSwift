@@ -74,6 +74,7 @@ acoustID.lookup(newFingerprint) { response in
         for result in results {
             // Get the matching score (0.0 to 1.0)
             let score = result.score
+
             for recording in result.recordings! {
                 // Get the song title
                 let title = recording.title

@@ -87,7 +87,7 @@ public class AcoustID {
         var request = URLRequest(url: lookupURL)
         request.timeoutInterval = timeout
 
-        session.dataTask(with: request) { (data, response, error) in
+        session.dataTask(with: request) { (data, _, error) in
             if error != nil {
                 completion(.failure(Error.networkFail))
             } else if let data = data {
