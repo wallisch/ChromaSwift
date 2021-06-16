@@ -8,8 +8,7 @@ import CChromaprint
 public class AudioDecoder {
     public enum Error: Swift.Error {
         case invalidFile
-        case noAudioTracks
-        case invalidAudioTrack
+        case noValidAudioTracks
         case feedingFailed
     }
 
@@ -25,14 +24,16 @@ public class AudioDecoder {
 
         let audioTracks = asset.tracks(withMediaType: AVMediaType.audio)
         if audioTracks.isEmpty {
-            throw Error.noAudioTracks
+            throw Error.noValidAudioTracks
         }
         let audioTrack = audioTracks.first!
 
         let sampleRate = chromaprint_get_sample_rate(context)
+        let channels = chromaprint_get_num_channels(context)
         let outputSettings: [String: Int] = [
             AVFormatIDKey: Int(kAudioFormatLinearPCM),
             AVSampleRateKey: Int(sampleRate),
+            AVNumberOfChannelsKey: Int(channels),
             AVLinearPCMIsBigEndianKey: 0,
             AVLinearPCMIsFloatKey: 0,
             AVLinearPCMBitDepthKey: 16,
@@ -43,25 +44,13 @@ public class AudioDecoder {
         let duration = CMTimeGetSeconds(audioTrack.timeRange.duration)
         let maxSampleDuration = maxSampleDuration ?? duration
 
-        var sampleChannels: Int32?
-        for description in audioTrack.formatDescriptions {
-            let audioDescription = description as! CMAudioFormatDescription
-            let basicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(audioDescription)?.pointee
-            if basicDescription?.mChannelsPerFrame != 0 {
-                sampleChannels = Int32((basicDescription?.mChannelsPerFrame)!)
-            }
-        }
-        guard let channels = sampleChannels else {
-            throw Error.invalidAudioTrack
-        }
-
         if chromaprint_start(context, sampleRate, channels) != 1 {
             throw Error.feedingFailed
         }
 
         reader.add(trackOutput)
         reader.startReading()
-        var remainingSamples = Int32((maxSampleDuration * Double(channels) * Double(sampleRate)).rounded(.up))
+        var remainingSamples = Int32((maxSampleDuration * Double(channels * sampleRate)).rounded(.up))
 
         while reader.status == AVAssetReader.Status.reading {
             if let sampleBufferRef = trackOutput.copyNextSampleBuffer() {
