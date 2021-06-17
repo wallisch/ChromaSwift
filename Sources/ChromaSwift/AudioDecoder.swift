@@ -9,6 +9,7 @@ public class AudioDecoder {
     public enum Error: Swift.Error {
         case invalidFile
         case noValidAudioTracks
+        case decodingFailed
         case feedingFailed
     }
 
@@ -22,7 +23,7 @@ public class AudioDecoder {
             throw Error.invalidFile
         }
 
-        let audioTracks = asset.tracks(withMediaType: AVMediaType.audio)
+        let audioTracks = asset.tracks(withMediaType: .audio)
         if audioTracks.isEmpty {
             throw Error.noValidAudioTracks
         }
@@ -30,52 +31,57 @@ public class AudioDecoder {
 
         let sampleRate = chromaprint_get_sample_rate(context)
         let channels = chromaprint_get_num_channels(context)
-        let outputSettings: [String: Int] = [
-            AVFormatIDKey: Int(kAudioFormatLinearPCM),
-            AVSampleRateKey: Int(sampleRate),
-            AVNumberOfChannelsKey: Int(channels),
-            AVLinearPCMIsBigEndianKey: 0,
-            AVLinearPCMIsFloatKey: 0,
+        let outputSettings: [String: Any] = [
+            AVFormatIDKey: kAudioFormatLinearPCM,
+            AVSampleRateKey: sampleRate,
+            AVNumberOfChannelsKey: channels,
             AVLinearPCMBitDepthKey: 16,
-            AVLinearPCMIsNonInterleaved: 0
+            AVLinearPCMIsBigEndianKey: false,
+            AVLinearPCMIsFloatKey: false,
+            AVLinearPCMIsNonInterleaved: false,
         ]
         let trackOutput = AVAssetReaderTrackOutput(track: audioTrack, outputSettings: outputSettings)
 
-        let duration = CMTimeGetSeconds(audioTrack.timeRange.duration)
-        let maxSampleDuration = maxSampleDuration ?? duration
-
         if chromaprint_start(context, sampleRate, channels) != 1 {
-            throw Error.feedingFailed
+            throw Error.decodingFailed
         }
 
         reader.add(trackOutput)
-        reader.startReading()
-        var remainingSamples = Int32((maxSampleDuration * Double(channels * sampleRate)).rounded(.up))
+        if !reader.startReading() {
+            throw Error.decodingFailed
+        }
 
-        while reader.status == AVAssetReader.Status.reading {
-            if let sampleBufferRef = trackOutput.copyNextSampleBuffer() {
-                if let blockBufferRef = CMSampleBufferGetDataBuffer(sampleBufferRef) {
-                    let bufferLength = CMBlockBufferGetDataLength(blockBufferRef)
+        var remainingSamples = Int.max
+        if let maxSampleDuration = maxSampleDuration {
+            remainingSamples = Int(maxSampleDuration * Double(channels * sampleRate))
+        }
 
-                    let samples = UnsafeMutablePointer<Int16>.allocate(capacity: bufferLength)
+        while reader.status == .reading {
+            if let sampleBuffer = trackOutput.copyNextSampleBuffer() {
+                if let blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer) {
+                    let bufferLength = CMBlockBufferGetDataLength(blockBuffer)
+                    let sampleCount = bufferLength >> 1
+
+                    let samples = UnsafeMutablePointer<Int16>.allocate(capacity: sampleCount)
                     defer {
                         samples.deallocate()
                     }
 
-                    CMBlockBufferCopyDataBytes(blockBufferRef, atOffset: 0, dataLength: bufferLength, destination: samples)
+                    CMBlockBufferCopyDataBytes(blockBuffer, atOffset: 0, dataLength: bufferLength, destination: samples)
 
-                    let sampleCount = Int32(bufferLength >> 1)
-                    let length = min(remainingSamples, sampleCount)
-
-                    if chromaprint_feed(context, samples, length) != 1 {
+                    let samplesToCopy = min(remainingSamples, sampleCount)
+                    if chromaprint_feed(context, samples, Int32(samplesToCopy)) != 1 {
                         throw Error.feedingFailed
                     }
 
-                    CMSampleBufferInvalidate(sampleBufferRef)
+                    CMSampleBufferInvalidate(sampleBuffer)
 
-                    remainingSamples -= length
-                    if remainingSamples <= 0 {
-                        break
+                    if maxSampleDuration != nil {
+                        remainingSamples -= samplesToCopy
+                        if remainingSamples <= 0 {
+                            reader.cancelReading()
+                            break
+                        }
                     }
                 }
             }
@@ -85,6 +91,6 @@ public class AudioDecoder {
             throw Error.feedingFailed
         }
 
-        return duration
+        return CMTimeGetSeconds(audioTrack.timeRange.duration)
     }
 }
