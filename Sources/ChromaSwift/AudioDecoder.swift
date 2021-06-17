@@ -9,6 +9,7 @@ public class AudioDecoder {
     public enum Error: Swift.Error {
         case invalidFile
         case noValidAudioTracks
+        case invalidMaxSampleDuration
         case decodingFailed
         case feedingFailed
     }
@@ -33,6 +34,9 @@ public class AudioDecoder {
         reader.timeRange = audioTrack.timeRange
 
         if let maxSampleDuration = maxSampleDuration {
+            if maxSampleDuration <= 0 {
+                throw Error.invalidMaxSampleDuration
+            }
             if maxSampleDuration < totalDuration {
                 let readDuration = CMTime(seconds: maxSampleDuration, preferredTimescale: audioTrack.naturalTimeScale)
                 reader.timeRange = CMTimeRange(start: audioTrack.timeRange.start, duration: readDuration)

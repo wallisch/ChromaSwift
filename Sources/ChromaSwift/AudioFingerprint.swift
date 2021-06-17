@@ -12,6 +12,7 @@ public class AudioFingerprint {
 
     public enum Error: Swift.Error {
         case fingerprintingFailed
+        case invalidDuration
         case invalidFingerprint
     }
 
@@ -51,6 +52,14 @@ public class AudioFingerprint {
     }
 
     public convenience init(from fingerprint: String, duration: Double) throws {
+        if duration <= 0 {
+            throw Error.invalidDuration
+        }
+
+        if fingerprint.isEmpty {
+            throw Error.invalidFingerprint
+        }
+
         guard var mutableFingerprint = fingerprint.cString(using: .ascii) else {
             throw Error.invalidFingerprint
         }

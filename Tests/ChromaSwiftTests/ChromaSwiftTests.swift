@@ -27,8 +27,30 @@ class ChromaSwiftTests: XCTestCase {
     }
 
     func testInvalidFingerprint() {
-        XCTAssertThrowsError(try AudioFingerprint(from: "Invalid", duration: 2.0)) { error in
+        XCTAssertThrowsError(try AudioFingerprint(from: "Invalid", duration: 10.0)) { error in
             XCTAssertEqual(error as? AudioFingerprint.Error, AudioFingerprint.Error.invalidFingerprint)
+        }
+
+        XCTAssertThrowsError(try AudioFingerprint(from: "", duration: 10.0)) { error in
+            XCTAssertEqual(error as? AudioFingerprint.Error, AudioFingerprint.Error.invalidFingerprint)
+        }
+    }
+
+    func testInvalidDuration() {
+        XCTAssertThrowsError(try AudioFingerprint(from: backbeatURL, maxSampleDuration: -1.0)) { error in
+            XCTAssertEqual(error as? AudioDecoder.Error, AudioDecoder.Error.invalidMaxSampleDuration)
+        }
+
+        XCTAssertThrowsError(try AudioFingerprint(from: backbeatURL, maxSampleDuration: 0.0)) { error in
+            XCTAssertEqual(error as? AudioDecoder.Error, AudioDecoder.Error.invalidMaxSampleDuration)
+        }
+
+        XCTAssertThrowsError(try AudioFingerprint(from: backbeatFingerprint, duration: -1.0)) { error in
+            XCTAssertEqual(error as? AudioFingerprint.Error, AudioFingerprint.Error.invalidDuration)
+        }
+
+        XCTAssertThrowsError(try AudioFingerprint(from: backbeatFingerprint, duration: 0.0)) { error in
+            XCTAssertEqual(error as? AudioFingerprint.Error, AudioFingerprint.Error.invalidDuration)
         }
     }
 
@@ -36,7 +58,7 @@ class ChromaSwiftTests: XCTestCase {
         let result = try AudioFingerprint(from: backbeatURL)
 
         XCTAssertEqual(result.algorithm, AudioFingerprint.Algorithm.test2)
-        XCTAssertEqual(Int(result.duration), 46)
+        XCTAssertEqual(UInt(result.duration), 46)
         XCTAssertEqual(result.hash, backbeatHash)
     }
 
@@ -44,7 +66,7 @@ class ChromaSwiftTests: XCTestCase {
         let result = try AudioFingerprint(from: backbeatFingerprint, duration: 46.0)
 
         XCTAssertEqual(result.algorithm, AudioFingerprint.Algorithm.test2)
-        XCTAssertEqual(Int(result.duration), 46)
+        XCTAssertEqual(UInt(result.duration), 46)
         XCTAssertEqual(result.fingerprint, backbeatFingerprint)
         XCTAssertEqual(result.hash, backbeatHash)
     }
@@ -60,13 +82,15 @@ class ChromaSwiftTests: XCTestCase {
     func testFingerprintMaxSampleDuration() throws {
         let result = try AudioFingerprint(from: fireworksURL)
         XCTAssertEqual(result.algorithm, AudioFingerprint.Algorithm.test2)
-        XCTAssertEqual(Int(result.duration), 191)
+        XCTAssertEqual(UInt(result.duration), 191)
         XCTAssertEqual(result.hash, fireworksHash)
 
         let longResult = try AudioFingerprint(from: fireworksURL, maxSampleDuration: nil)
+        XCTAssertEqual(UInt(longResult.duration), 191)
         XCTAssertGreaterThan(longResult.fingerprint!.count, result.fingerprint!.count)
 
         let shortResult = try AudioFingerprint(from: fireworksURL, maxSampleDuration: 10.0)
+        XCTAssertEqual(UInt(shortResult.duration), 191)
         XCTAssertLessThan(shortResult.fingerprint!.count, result.fingerprint!.count)
     }
 

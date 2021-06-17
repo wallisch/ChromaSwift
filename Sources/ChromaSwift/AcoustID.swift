@@ -11,12 +11,14 @@ public class AcoustID {
     let timeout: Double
 
     public enum Error: Swift.Error {
-        case invalidFingerprint
         case invalidURL
         case networkFail
         case parseFail
-        case apiFail
+        case invalidFingerprint
         case invalidApiKey
+        case invalidDuration
+        case tooManyRequests
+        case apiFail
     }
 
     struct APIResponse: Codable {
@@ -74,7 +76,7 @@ public class AcoustID {
         let query = [
             URLQueryItem(name: "client", value: apiKey),
             URLQueryItem(name: "meta", value: "recordings+releasegroups+compress"),
-            URLQueryItem(name: "duration", value: String(Int(fingerprint.duration))),
+            URLQueryItem(name: "duration", value: String(UInt(fingerprint.duration))),
             URLQueryItem(name: "fingerprint", value: base64Fingerprint)
         ]
         var lookupURLComponents = URLComponents(string: lookupEndpoint)!
@@ -101,6 +103,10 @@ public class AcoustID {
                         completion(.failure(Error.invalidFingerprint))
                     case 4:
                         completion(.failure(Error.invalidApiKey))
+                    case 8:
+                        completion(.failure(Error.invalidDuration))
+                    case 14:
+                        completion(.failure(Error.tooManyRequests))
                     default:
                         completion(.failure(Error.apiFail))
                     }
