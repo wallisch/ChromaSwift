@@ -122,7 +122,7 @@ class ChromaSwiftTests: XCTestCase {
         let session = Session(cassetteName: "Fixtures/invalidAPIKey", testBundle: Bundle.module)
         let acoustID = AcoustID(apiKey: "zfkYWDrUqAk", timeout: 3.0, session: session)
 
-        let expectation = expectation(description: "AcoustID invalid API key")
+        let lookupExpectation = expectation(description: "AcoustID invalid API key")
         acoustID.lookup(fingerprint) { response in
             switch response {
             case .failure(let error):
@@ -130,7 +130,7 @@ class ChromaSwiftTests: XCTestCase {
             case .success(let results):
                 XCTFail("\(results)")
             }
-            expectation.fulfill()
+            lookupExpectation.fulfill()
         }
 
         waitForExpectations(timeout: 4.0)
@@ -143,7 +143,7 @@ class ChromaSwiftTests: XCTestCase {
         let session = Session(cassetteName: "Fixtures/invalidFingerprint", testBundle: Bundle.module)
         let acoustID = AcoustID(apiKey: "zfkYWDrOqAk", timeout: 3.0, session: session)
 
-        let expectation = expectation(description: "AcoustID invalid fingerprint")
+        let lookupExpectation = expectation(description: "AcoustID invalid fingerprint")
         acoustID.lookup(fingerprint) { response in
             switch response {
             case .failure(let error):
@@ -151,7 +151,7 @@ class ChromaSwiftTests: XCTestCase {
             case .success(let results):
                 XCTFail("\(results)")
             }
-            expectation.fulfill()
+            lookupExpectation.fulfill()
         }
 
         waitForExpectations(timeout: 4.0)
@@ -163,7 +163,7 @@ class ChromaSwiftTests: XCTestCase {
         let session = Session(cassetteName: "Fixtures/success", testBundle: Bundle.module)
         let acoustID = AcoustID(apiKey: "zfkYWDrOqAk", timeout: 3.0, session: session)
 
-        let expectation = expectation(description: "AcoustID successful API lookup")
+        let lookupExpectation = expectation(description: "AcoustID successful API lookup")
         acoustID.lookup(fingerprint) { response in
             switch response {
             case .failure(let error):
@@ -174,7 +174,7 @@ class ChromaSwiftTests: XCTestCase {
                 XCTAssertEqual(results.first?.recordings?.first?.title, "Fireworks")
                 XCTAssertEqual(results.first?.recordings?.first?.artists?.first?.name, "Alexander Nakarada")
             }
-            expectation.fulfill()
+            lookupExpectation.fulfill()
         }
 
         waitForExpectations(timeout: 4.0)
