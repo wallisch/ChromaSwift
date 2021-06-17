@@ -1,0 +1,8 @@
+excluded:
+  - .build
+line_length: 200
+function_body_length: 80
+cyclomatic_complexity: 15
+identifier_name:
+  excluded:
+    - id

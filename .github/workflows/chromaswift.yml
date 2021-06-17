@@ -1,0 +1,59 @@
+name: ChromaSwift
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Lint
+      run: swiftlint
+
+  macos:
+    name: macOS
+    needs: lint
+    runs-on: macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Build
+      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild build-for-testing -scheme ChromaSwift | xcpretty
+    - name: Test
+      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild test-without-building -scheme ChromaSwift | xcpretty
+
+  ios:
+    name: iOS
+    needs: lint
+    runs-on: macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Build
+      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild build-for-testing -scheme ChromaSwift -destination "platform=iOS Simulator,OS=latest,name=iPhone 12" | xcpretty
+    - name: Test
+      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild test-without-building -scheme ChromaSwift -destination "platform=iOS Simulator,OS=latest,name=iPhone 12" | xcpretty
+
+  tvOS:
+    name: tvOS
+    needs: lint
+    runs-on: macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Build
+      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild build-for-testing -scheme ChromaSwift -destination "platform=tvOS Simulator,OS=latest,name=Apple TV" | xcpretty
+    - name: Test
+      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild test-without-building -scheme ChromaSwift -destination "platform=tvOS Simulator,OS=latest,name=Apple TV" | xcpretty
