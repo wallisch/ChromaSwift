@@ -29,6 +29,16 @@ public class AudioDecoder {
         }
         let audioTrack = audioTracks.first!
 
+        let totalDuration = audioTrack.timeRange.duration.seconds
+        reader.timeRange = audioTrack.timeRange
+
+        if let maxSampleDuration = maxSampleDuration {
+            if maxSampleDuration < totalDuration {
+                let readDuration = CMTime(seconds: maxSampleDuration, preferredTimescale: audioTrack.naturalTimeScale)
+                reader.timeRange = CMTimeRange(start: audioTrack.timeRange.start, duration: readDuration)
+            }
+        }
+
         let sampleRate = chromaprint_get_sample_rate(context)
         let channels = chromaprint_get_num_channels(context)
         let outputSettings: [String: Any] = [
@@ -38,7 +48,7 @@ public class AudioDecoder {
             AVLinearPCMBitDepthKey: 16,
             AVLinearPCMIsBigEndianKey: false,
             AVLinearPCMIsFloatKey: false,
-            AVLinearPCMIsNonInterleaved: false,
+            AVLinearPCMIsNonInterleaved: false
         ]
         let trackOutput = AVAssetReaderTrackOutput(track: audioTrack, outputSettings: outputSettings)
 
@@ -49,11 +59,6 @@ public class AudioDecoder {
         reader.add(trackOutput)
         if !reader.startReading() {
             throw Error.decodingFailed
-        }
-
-        var remainingSamples = Int.max
-        if let maxSampleDuration = maxSampleDuration {
-            remainingSamples = Int(maxSampleDuration * Double(channels * sampleRate))
         }
 
         while reader.status == .reading {
@@ -69,20 +74,11 @@ public class AudioDecoder {
 
                     CMBlockBufferCopyDataBytes(blockBuffer, atOffset: 0, dataLength: bufferLength, destination: samples)
 
-                    let samplesToCopy = min(remainingSamples, sampleCount)
-                    if chromaprint_feed(context, samples, Int32(samplesToCopy)) != 1 {
+                    if chromaprint_feed(context, samples, Int32(sampleCount)) != 1 {
                         throw Error.feedingFailed
                     }
 
                     CMSampleBufferInvalidate(sampleBuffer)
-
-                    if maxSampleDuration != nil {
-                        remainingSamples -= samplesToCopy
-                        if remainingSamples <= 0 {
-                            reader.cancelReading()
-                            break
-                        }
-                    }
                 }
             }
         }
@@ -91,6 +87,6 @@ public class AudioDecoder {
             throw Error.feedingFailed
         }
 
-        return CMTimeGetSeconds(audioTrack.timeRange.duration)
+        return totalDuration
     }
 }
