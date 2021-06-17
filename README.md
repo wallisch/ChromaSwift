@@ -17,17 +17,18 @@ Add `https://github.com/wallisch/ChromaSwift` as SPM dependency and `import Chro
 ### Generating fingerprints
 
 ``` swift
-// Generate fingerprint of audio file by URL
-let audioFileURL = URL(fileURLWithPath: "test.mp3")
-let testFingerprint = try? AudioFingerprint(from: audioFileURL)
+// Generate fingerprint of a file containing an audio track by URL
+// This also works for video files (e.g. music videos)
+let fileURL = URL(fileURLWithPath: "Test.mp3")
+let testFingerprint = try? AudioFingerprint(from: fileURL)
 
 // Optionally, specify the AudioFingerprintAlgorithm (Default: .test2)
 // Note that only .test2 fingerprints can be looked up at the AcoustID service
-testFingerprint = try? AudioFingerprint(from: audioFileURL, algorithm: .test4)
+testFingerprint = try? AudioFingerprint(from: fileURL, algorithm: .test4)
 
 // And / Or the maximum duration to sample in seconds (Default: 120)
 // Pass nil to sample the entire file
-testFingerprint = try? AudioFingerprint(from: audioFileURL, maxSampleDuration: 10.0)
+testFingerprint = try? AudioFingerprint(from: fileURL, maxSampleDuration: 10.0)
 ```
 
 ### Handling fingerprints
@@ -97,8 +98,8 @@ acoustID.lookup(newFingerprint) { response in
 ``` swift
 // Throwing calls throw either AudioDecoder.Error or AudioFingerprint.Error
 do {
-    let audioFileURL = URL(fileURLWithPath: "Invalid.mp3")
-    try AudioFingerprint(from: audioFileURL)
+    let fileURL = URL(fileURLWithPath: "Invalid.mp3")
+    try AudioFingerprint(from: fileURL)
 } catch {
     // AudioDecoder.Error.invalidFile
 }
