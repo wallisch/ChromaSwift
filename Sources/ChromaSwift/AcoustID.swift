@@ -68,16 +68,11 @@ public class AcoustID {
     }
 
     public func lookup(_ fingerprint: AudioFingerprint, completion: @escaping (Result<[APIResult], Error>) -> Void) {
-        guard let base64Fingerprint = fingerprint.fingerprint else {
-            completion(.failure(Error.invalidFingerprint))
-            return
-        }
-
         let query = [
             URLQueryItem(name: "client", value: apiKey),
             URLQueryItem(name: "meta", value: "recordings+releasegroups+compress"),
             URLQueryItem(name: "duration", value: String(UInt(fingerprint.duration))),
-            URLQueryItem(name: "fingerprint", value: base64Fingerprint)
+            URLQueryItem(name: "fingerprint", value: fingerprint.fingerprint)
         ]
         var lookupURLComponents = URLComponents(string: lookupEndpoint)!
         lookupURLComponents.queryItems = query

@@ -56,13 +56,13 @@ let duration = testFingerprint.duration // 46.0
 Get the fingerprint as base64 representation
 
 ``` swift
-let base64FingerprintString = testFingerprint.fingerprint! // AQABYJGikFSmJBCPijt6Hq..."
+let base64FingerprintString = testFingerprint.fingerprint // "AQABYJGikFSmJBCPijt6Hq..."
 ```
 
 Get the fingerprints hash as binary string
 
 ``` swift
-let binaryHashString = testFingerprint.hash! // "01110100010011101010100110100100"
+let binaryHashString = testFingerprint.hash // "01110100010011101010100110100100"
 ```
 
 Instantiate a fingerprint object from its base64 representation and entire file duration
@@ -74,13 +74,23 @@ let newFingerprint = try AudioFingerprint(from: base64FingerprintString, duratio
 Get similarity to other fingerprint object (`0.0` to `1.0`)
 
 ``` swift
-newFingerprint.similarity(to: testFingerprint) // 1.0
+let similarity = try newFingerprint.similarity(to: testFingerprint) // 1.0
 ```
 
-Or a hash as binary string
+Optionally, ignore length differences greater than 50% between fingerprints (Default: `false`)
+
+*Note: This can lead to wrong results when comparing e.g. a Fingerprint sampled for 10 seconds to a Fingerprint sampled for 120 seconds*
 
 ``` swift
-newFingerprint.similarity(to: binaryHashString) // 1.0
+let similarity = try newFingerprint.similarity(to: testFingerprint, ignoreLength: true) // 1.0
+```
+
+You can also get the similarity to a fingerprint hash
+
+*Note: This is less accurate than comparing fingerprint objects, especially if the algorithms don't match*
+
+``` swift
+let hashSimilarity = try newFingerprint.similarity(to: binaryHashString) // 1.0
 ```
 
 ### Looking up fingerprints
@@ -142,7 +152,7 @@ Or an `AudioFingerprint.Error`
 
 ``` swift
 do {
-    try AudioFingerprint(from: "Invalid", duration: 10.0)
+    try AudioFingerprint(from: "Invalid", duration: 46.0)
 } catch {
     // AudioFingerprint.Error.invalidFingerprint
 }

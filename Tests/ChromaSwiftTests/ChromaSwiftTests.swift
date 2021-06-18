@@ -77,7 +77,7 @@ class ChromaSwiftTests: XCTestCase {
         let result = try AudioFingerprint(from: backbeatURL, algorithm: .test4)
         XCTAssertEqual(result.algorithm, AudioFingerprint.Algorithm.test4)
 
-        let constructedResult = try AudioFingerprint(from: result.fingerprint!, duration: result.duration)
+        let constructedResult = try AudioFingerprint(from: result.fingerprint, duration: result.duration)
         XCTAssertEqual(constructedResult.algorithm, AudioFingerprint.Algorithm.test4)
     }
 
@@ -89,31 +89,56 @@ class ChromaSwiftTests: XCTestCase {
 
         let longResult = try AudioFingerprint(from: fireworksURL, maxSampleDuration: nil)
         XCTAssertEqual(UInt(longResult.duration), 191)
-        XCTAssertGreaterThan(longResult.fingerprint!.count, result.fingerprint!.count)
+        XCTAssertGreaterThan(longResult.fingerprint.count, result.fingerprint.count)
 
         let shortResult = try AudioFingerprint(from: fireworksURL, maxSampleDuration: 10.0)
         XCTAssertEqual(UInt(shortResult.duration), 191)
-        XCTAssertLessThan(shortResult.fingerprint!.count, result.fingerprint!.count)
+        XCTAssertLessThan(shortResult.fingerprint.count, result.fingerprint.count)
     }
 
     func testSimilarity() throws {
         let result = try AudioFingerprint(from: backbeatURL)
+        let compareResult = try AudioFingerprint(from: backbeatFingerprint, duration: 46.0)
+        XCTAssertEqual(try result.similarity(to: result), 1.00)
+        XCTAssertGreaterThan(try result.similarity(to: compareResult), 0.99)
 
         let otherResult = try AudioFingerprint(from: fireworksURL)
+        let otherCompareResult = try AudioFingerprint(from: fireworksFingerprint, duration: 191.0)
+        XCTAssertEqual(try otherResult.similarity(to: otherResult), 1.00)
+        XCTAssertGreaterThan(try otherResult.similarity(to: otherCompareResult), 0.99)
 
-        XCTAssertEqual(result.similarity(to: otherResult), 0.78125)
+        XCTAssertLessThan(try result.similarity(to: otherResult, ignoreLength: true), 0.55)
+    }
+
+    func testInvalidSimilarity() throws {
+        let result = try AudioFingerprint(from: backbeatFingerprint, duration: 46.0)
+        let resultTest4 = try AudioFingerprint(from: backbeatFingerprintTest4, duration: 46.0)
+        let otherResult = try AudioFingerprint(from: fireworksFingerprint, duration: 191.0)
+
+        XCTAssertThrowsError(try result.similarity(to: otherResult)) { error in
+            XCTAssertEqual(error as? AudioFingerprint.Error, AudioFingerprint.Error.lenghtDifference)
+        }
+
+        XCTAssertEqual(resultTest4.algorithm, AudioFingerprint.Algorithm.test4)
+        XCTAssertThrowsError(try result.similarity(to: resultTest4)) { error in
+            XCTAssertEqual(error as? AudioFingerprint.Error, AudioFingerprint.Error.differentAlgorithm)
+        }
     }
 
     func testHashSimilarity() throws {
         let result = try AudioFingerprint(from: backbeatURL)
 
-        XCTAssertEqual(result.similarity(to: backbeatHash), 1.0)
+        XCTAssertEqual(try result.similarity(to: backbeatHash), 1.0)
+
+        XCTAssertEqual(try result.similarity(to: fireworksHash), 0.78125)
     }
 
     func testInvalidHashSimilarity() throws {
-        let result = try AudioFingerprint(from: backbeatURL)
+        let result = try AudioFingerprint(from: backbeatFingerprint, duration: 46.0)
 
-        XCTAssertNil(result.similarity(to: "Invalid"))
+        XCTAssertThrowsError(try result.similarity(to: "Invalid")) { error in
+            XCTAssertEqual(error as? AudioFingerprint.Error, AudioFingerprint.Error.invalidHash)
+        }
     }
 
     func testAcoustIDInvalidAPIKey() throws {

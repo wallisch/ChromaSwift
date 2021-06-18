@@ -14,6 +14,9 @@ public class AudioFingerprint {
         case fingerprintingFailed
         case invalidDuration
         case invalidFingerprint
+        case invalidHash
+        case differentAlgorithm
+        case lenghtDifference
     }
 
     public enum Algorithm: Int32 {
@@ -78,33 +81,27 @@ public class AudioFingerprint {
         self.init(from: [UInt32](UnsafeBufferPointer(start: rawFingerprintPointer, count: Int(rawFingerprintSize))), algorithm: Algorithm(rawValue: algorithm)!, duration: duration)
     }
 
-    public var fingerprint: String? {
+    public var fingerprint: String {
         var fingerprint: UnsafeMutablePointer<CChar>?  = UnsafeMutablePointer<CChar>.allocate(capacity: 1)
         defer {
             fingerprint?.deallocate()
         }
         var fingerprintSize = Int32(0)
 
-        if chromaprint_encode_fingerprint(&rawFingerprint, Int32(rawFingerprint.count), algorithm.rawValue, &fingerprint, &fingerprintSize, 1) != 1 {
-            return nil
-        }
+        chromaprint_encode_fingerprint(&rawFingerprint, Int32(rawFingerprint.count), algorithm.rawValue, &fingerprint, &fingerprintSize, 1)
 
         return String(cString: fingerprint!)
     }
 
-    var rawHash: UInt32? {
+    var rawHash: UInt32 {
         var hash = UInt32(0)
 
-        if chromaprint_hash_fingerprint(&rawFingerprint, Int32(rawFingerprint.count), &hash) != 1 {
-            return nil
-        }
+        chromaprint_hash_fingerprint(&rawFingerprint, Int32(rawFingerprint.count), &hash)
 
         return hash
     }
 
-    public var hash: String? {
-        guard let rawHash = rawHash else { return nil }
-
+    public var hash: String {
         let binaryString = String(rawHash, radix: 2)
 
         var paddedBinaryString = binaryString
@@ -115,19 +112,39 @@ public class AudioFingerprint {
         return paddedBinaryString
     }
 
-    func similarity(to otherRawHash: UInt32) -> Double? {
-        guard let selfRawHash = rawHash else { return nil }
-        let diff = selfRawHash ^ otherRawHash
-        return Double(32 - String(diff, radix: 2).filter({ $0 == "1" }).count) / Double(32)
+    func similarity(to rawHash: UInt32) -> Double {
+        return Double(32 - (self.rawHash ^ rawHash).nonzeroBitCount) / Double(32)
     }
 
-    public func similarity(to otherHash: String) -> Double? {
-        guard let otherRawHash = UInt32(otherHash, radix: 2) else { return nil }
-        return similarity(to: otherRawHash)
+    public func similarity(to hash: String) throws -> Double {
+        guard let rawHash = UInt32(hash, radix: 2) else {
+            throw Error.invalidHash
+        }
+        return similarity(to: rawHash)
     }
 
-    public func similarity(to fingerprint: AudioFingerprint) -> Double? {
-        guard let otherRawHash = fingerprint.rawHash else { return nil }
-        return similarity(to: otherRawHash)
+    public func similarity(to fingerprint: AudioFingerprint, ignoreLength: Bool = false) throws -> Double {
+        if fingerprint.algorithm != algorithm {
+            throw Error.differentAlgorithm
+        }
+
+        let sampleDifference = fingerprint.rawFingerprint.count - rawFingerprint.count
+        let biggerFingerprint = sampleDifference.signum() >= 0 ? fingerprint.rawFingerprint : rawFingerprint
+        let smallerFingerprint = sampleDifference.signum() >= 0 ? rawFingerprint : fingerprint.rawFingerprint
+
+        if !ignoreLength && abs(sampleDifference) > biggerFingerprint.count / 2 {
+            throw Error.lenghtDifference
+        }
+
+        var smallestError = Int.max
+        for offset in 0...abs(sampleDifference) {
+            var error = 0
+            for (index, value) in smallerFingerprint.enumerated() {
+                error += (value ^ biggerFingerprint[index + offset]).nonzeroBitCount
+            }
+            smallestError = error < smallestError ? error : smallestError
+        }
+
+        return 1 - Double(smallestError) / 32 / Double(smallerFingerprint.count)
     }
 }
