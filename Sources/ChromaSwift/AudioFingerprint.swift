@@ -16,7 +16,7 @@ public class AudioFingerprint {
         case invalidFingerprint
         case invalidHash
         case differentAlgorithm
-        case lenghtDifference
+        case sampleDurationDifference
     }
 
     public enum Algorithm: Int32 {
@@ -123,7 +123,7 @@ public class AudioFingerprint {
         return similarity(to: rawHash)
     }
 
-    public func similarity(to fingerprint: AudioFingerprint, ignoreLength: Bool = false) throws -> Double {
+    public func similarity(to fingerprint: AudioFingerprint, ignoreSampleDuration: Bool = false) throws -> Double {
         if fingerprint.algorithm != algorithm {
             throw Error.differentAlgorithm
         }
@@ -132,8 +132,8 @@ public class AudioFingerprint {
         let biggerFingerprint = sampleDifference.signum() >= 0 ? fingerprint.rawFingerprint : rawFingerprint
         let smallerFingerprint = sampleDifference.signum() >= 0 ? rawFingerprint : fingerprint.rawFingerprint
 
-        if !ignoreLength && abs(sampleDifference) > biggerFingerprint.count / 2 {
-            throw Error.lenghtDifference
+        if !ignoreSampleDuration && abs(sampleDifference) > Int(Double(biggerFingerprint.count) * 0.2) {
+            throw Error.sampleDurationDifference
         }
 
         var smallestError = Int.max

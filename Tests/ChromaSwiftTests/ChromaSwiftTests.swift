@@ -102,12 +102,15 @@ class ChromaSwiftTests: XCTestCase {
         XCTAssertEqual(try result.similarity(to: result), 1.00)
         XCTAssertGreaterThan(try result.similarity(to: compareResult), 0.99)
 
+        let shortCompareResult = try AudioFingerprint(from: backbeatURL, maxSampleDuration: 10.0)
+        XCTAssertGreaterThan(try result.similarity(to: shortCompareResult, ignoreSampleDuration: true), 0.99)
+
         let otherResult = try AudioFingerprint(from: fireworksURL)
         let otherCompareResult = try AudioFingerprint(from: fireworksFingerprint, duration: 191.0)
         XCTAssertEqual(try otherResult.similarity(to: otherResult), 1.00)
         XCTAssertGreaterThan(try otherResult.similarity(to: otherCompareResult), 0.99)
 
-        XCTAssertLessThan(try result.similarity(to: otherResult, ignoreLength: true), 0.55)
+        XCTAssertLessThan(try result.similarity(to: otherResult, ignoreSampleDuration: true), 0.55)
     }
 
     func testInvalidSimilarity() throws {
@@ -116,7 +119,7 @@ class ChromaSwiftTests: XCTestCase {
         let otherResult = try AudioFingerprint(from: fireworksFingerprint, duration: 191.0)
 
         XCTAssertThrowsError(try result.similarity(to: otherResult)) { error in
-            XCTAssertEqual(error as? AudioFingerprint.Error, AudioFingerprint.Error.lenghtDifference)
+            XCTAssertEqual(error as? AudioFingerprint.Error, AudioFingerprint.Error.sampleDurationDifference)
         }
 
         XCTAssertEqual(resultTest4.algorithm, AudioFingerprint.Algorithm.test4)

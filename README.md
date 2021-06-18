@@ -27,7 +27,9 @@ let testFingerprint = try AudioFingerprint(from: fileURL)
 
 Optionally, specify the AudioFingerprintAlgorithm (Default: `.test2`)
 
-*Note: Only `.test2` fingerprints can be looked up at the AcoustID service*
+You can remove leading silence with`.test4`
+
+*Warning: Only `.test2` fingerprints can be looked up at the AcoustID service*
 
 ``` swift
 let testFingerprint = try AudioFingerprint(from: fileURL, algorithm: .test4)
@@ -77,20 +79,22 @@ Get similarity to other fingerprint object (`0.0` to `1.0`)
 let similarity = try newFingerprint.similarity(to: testFingerprint) // 1.0
 ```
 
-Optionally, ignore length differences greater than 50% between fingerprints (Default: `false`)
+Optionally, ignore sample duration differences greater than 20% between fingerprints (Default: `false`)
 
-*Note: This can lead to wrong results when comparing e.g. a Fingerprint sampled for 10 seconds to a Fingerprint sampled for 120 seconds*
+This is useful if you want to e.g. check if a a longer mix contains a specific track
+
+*Warning: This can lead to wrong results when comparing with Fingerprints sampled for a very short duration*
 
 ``` swift
-let similarity = try newFingerprint.similarity(to: testFingerprint, ignoreLength: true) // 1.0
+try newFingerprint.similarity(to: testFingerprint, ignoreSampleDuration: true) // 1.0
 ```
 
 You can also get the similarity to a fingerprint hash
 
-*Note: This is less accurate than comparing fingerprint objects, especially if the algorithms don't match*
+*Warning: This is less accurate than comparing fingerprint objects, especially if the algorithms don't match*
 
 ``` swift
-let hashSimilarity = try newFingerprint.similarity(to: binaryHashString) // 1.0
+try newFingerprint.similarity(to: binaryHashString) // 1.0
 ```
 
 ### Looking up fingerprints
