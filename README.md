@@ -3,111 +3,146 @@
 ![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20iOS%20%7C%20tvOS-inactive)
 [![Swift](https://img.shields.io/badge/Swift-5-orange)](https://swift.org/)
 [![SPM](https://img.shields.io/badge/SPM-compatible-success)](https://swift.org/package-manager/)
+[![Unit Tests](https://github.com/wallisch/ChromaSwift/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/wallisch/ChromaSwift/actions/workflows/unit_tests.yml)
 
-Swift wrapper for [Chromaprint](https://github.com/acoustid/chromaprint), the audio fingerprint library of the [AcoustID](https://acoustid.org/) project.
+Swift wrapper for [Chromaprint](https://github.com/acoustid/chromaprint), the audio fingerprint library of the [AcoustID](https://acoustid.org/) project
 
 ## Installation
 
-Add `https://github.com/wallisch/ChromaSwift` as SPM dependency and `import ChromaSwift`.
+Add `https://github.com/wallisch/ChromaSwift` as SwiftPM dependency and `import ChromaSwift`
 
-*Note: You can also `import CChromaprint` to directly interact with Chromaprints C interface.*
+*Note: You can also `import CChromaprint` to directly interact with Chromaprints C interface*
 
 ## Usage
 
 ### Generating fingerprints
 
+Generate fingerprint of a file containing an audio track by URL. This also works for video files (e.g. music videos)
+
 ``` swift
-// Generate fingerprint of a file containing an audio track by URL
-// This also works for video files (e.g. music videos)
 let fileURL = URL(fileURLWithPath: "Test.mp3")
-let testFingerprint = try? AudioFingerprint(from: fileURL)
+let testFingerprint = try AudioFingerprint(from: fileURL)
+```
 
-// Optionally, specify the AudioFingerprintAlgorithm (Default: .test2)
-// Note that only .test2 fingerprints can be looked up at the AcoustID service
-testFingerprint = try? AudioFingerprint(from: fileURL, algorithm: .test4)
+Optionally, specify the AudioFingerprintAlgorithm (Default: `.test2`)
 
-// And / Or the maximum duration to sample in seconds (Default: 120)
-// Pass nil to sample the entire file
-testFingerprint = try? AudioFingerprint(from: fileURL, maxSampleDuration: 10.0)
+*Note: Only `.test2` fingerprints can be looked up at the AcoustID service*
+
+``` swift
+let testFingerprint = try AudioFingerprint(from: fileURL, algorithm: .test4)
+```
+
+And / Or the maximum duration to sample in seconds (Default: `120`). Pass `nil` to sample the entire file
+
+``` swift
+let testFingerprint = try AudioFingerprint(from: fileURL, maxSampleDuration: 10.0)
 ```
 
 ### Handling fingerprints
 
+Get the algorithm that was used to generate the fingerprint
+
 ``` swift
-// Get the algorithm that was used to generate the fingerprint
 let algorithm = testFingerprint.algorithm // AudioFingerprint.Algorithm.test2
+```
 
-// Get the duration of the entire file in seconds
+Get the duration of the entire file in seconds
+
+``` swift
 let duration = testFingerprint.duration // 46.0
+```
 
-// Get the fingerprint as base64 representation
-let base64FingerprintString = testFingerprint.fingerprint
+Get the fingerprint as base64 representation
 
-// Get the fingerprints hash as binary string
-let binaryHashString = testFingerprint.hash // "01110100010011101010100110100100"
+``` swift
+let base64FingerprintString = testFingerprint.fingerprint! // AQABYJGikFSmJBCPijt6Hq..."
+```
 
-// Instantiate a fingerprint object from its base64 representation and entire file duration
-let newFingerprint = try? AudioFingerprint(from: base64FingerprintString!, duration: duration)
+Get the fingerprints hash as binary string
 
-// Get similarity to other fingerprint object (0.0 to 1.0)
-newFingerprint?.similarity(to: testFingerprint) // 1.0
+``` swift
+let binaryHashString = testFingerprint.hash! // "01110100010011101010100110100100"
+```
 
-// Or a hash as binary string
-newFingerprint?.similarity(to: "01110100010011101010100110100100") // 1.0
+Instantiate a fingerprint object from its base64 representation and entire file duration
 
+``` swift
+let newFingerprint = try AudioFingerprint(from: base64FingerprintString, duration: duration)
+```
+
+Get similarity to other fingerprint object (`0.0` to `1.0`)
+
+``` swift
+newFingerprint.similarity(to: testFingerprint) // 1.0
+```
+
+Or a hash as binary string
+
+``` swift
+newFingerprint.similarity(to: binaryHashString) // 1.0
 ```
 
 ### Looking up fingerprints
 
+Init the service with your AcoustID API key
+
 ``` swift
-// Init the service with your AcoustID API key
 let acoustID = AcoustID(apiKey: "zfkYWDrOqAk")
+```
 
-// Optionally, specify a timeout in seconds (Default: 3.0)
-let acoustID = AcoustID(apiKey: "zfkYWDrOqAk", timeout: 5.0)
+Optionally, specify a timeout in seconds (Default: `3.0`)
 
-// Lookup an AudioFingerprint object
+``` swift
+let acoustID = AcoustID(apiKey: "zfkYWDrOqAk", timeout: 10.0)
+```
+
+Lookup an AudioFingerprint object
+
+``` swift
 acoustID.lookup(newFingerprint) { response in
     switch response {
     case .failure(let error):
         // AcoustID.Error
     case .success(let results):
-        // See AcoustID.APIResult for all available properties
+        // [AcoustID.APIResult]
         for result in results {
-            // Get the matching score (0.0 to 1.0)
+            // Matching score (0.0 to 1.0)
             let score = result.score
 
             for recording in result.recordings! {
-                // Get the song title
+                // Song title
                 let title = recording.title
 
-                // Get the songs artists
+                // Song artists
                 let artists = recording.artists
 
-                // Get the songs release groups (Albums, Singles, etc.)
+                // Song release groups (Albums, Singles, etc.)
                 let releasegroups = recording.releasegroups
             }
         }
     }
 }
-
 ```
 
 ### Handling errors
 
+Throwing calls throw either an `AudioDecoder.Error`
+
 ``` swift
-// Throwing calls throw either AudioDecoder.Error or AudioFingerprint.Error
 do {
     let fileURL = URL(fileURLWithPath: "Invalid.mp3")
     try AudioFingerprint(from: fileURL)
 } catch {
     // AudioDecoder.Error.invalidFile
 }
+```
 
+Or an `AudioFingerprint.Error`
+
+``` swift
 do {
-    try AudioFingerprint(from: "Invalid")
+    try AudioFingerprint(from: "Invalid", duration: 10.0)
 } catch {
     // AudioFingerprint.Error.invalidFingerprint
 }
-
 ```
