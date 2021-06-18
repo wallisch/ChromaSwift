@@ -4,6 +4,7 @@
 [![Swift](https://img.shields.io/badge/Swift-5-orange)](https://swift.org/)
 [![SPM](https://img.shields.io/badge/SPM-compatible-success)](https://swift.org/package-manager/)
 [![Unit Tests](https://github.com/wallisch/ChromaSwift/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/wallisch/ChromaSwift/actions/workflows/unit_tests.yml)
+[![codecov](https://codecov.io/gh/wallisch/ChromaSwift/branch/master/graph/badge.svg?token=Y9IMV4347N)](https://codecov.io/gh/wallisch/ChromaSwift)
 
 Swift wrapper for [Chromaprint](https://github.com/acoustid/chromaprint), the audio fingerprint library of the [AcoustID](https://acoustid.org/) project
 

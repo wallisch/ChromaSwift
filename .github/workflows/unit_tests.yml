@@ -28,9 +28,11 @@ jobs:
       with:
         submodules: true
     - name: Build
-      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild build-for-testing -scheme ChromaSwift | xcpretty
+      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild build-for-testing -scheme ChromaSwift -enableCodeCoverage YES | xcpretty
     - name: Test
-      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild test-without-building -scheme ChromaSwift | xcpretty
+      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild test-without-building -scheme ChromaSwift -enableCodeCoverage YES | xcpretty
+    - name: Codecov upload
+      uses: codecov/codecov-action@v1
 
   ios:
     name: iOS
