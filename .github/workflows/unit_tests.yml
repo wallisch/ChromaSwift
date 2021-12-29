@@ -28,9 +28,9 @@ jobs:
       with:
         submodules: true
     - name: Build
-      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild build-for-testing -scheme ChromaSwift -enableCodeCoverage YES | xcpretty
+      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild build-for-testing -scheme ChromaSwift -destination "platform=macos,arch=x86_64" -enableCodeCoverage YES | xcpretty
     - name: Test
-      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild test-without-building -scheme ChromaSwift -enableCodeCoverage YES | xcpretty
+      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild test-without-building -scheme ChromaSwift -destination "platform=macos,arch=x86_64" -enableCodeCoverage YES | xcpretty
     - name: Codecov upload
       uses: codecov/codecov-action@v1
 
