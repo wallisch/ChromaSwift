@@ -17,56 +17,54 @@ let package = Package(
             name: "CChromaprint",
             exclude: [
                 // fpcalc
-                "src/cmd",
+                "cmd",
+                // FFMPEG parts
+                "avresample",
                 // Other FFT Libs
-                "src/fft_lib_avfft.cpp",
-                "src/fft_lib_fftw3.cpp",
-                "src/fft_lib_kissfft.cpp",
+                "fft_lib_avfft.cpp",
+                "fft_lib_fftw3.cpp",
+                "fft_lib_kissfft.cpp",
+                // Testlibs
+                "3rdparty",
                 // Tests
-                "src/fft_test.cpp",
-                "src/audio/audio_slicer_test.cpp",
-                "src/audio/ffmpeg_audio_reader_test.cpp",
-                "src/utils/base64_test.cpp",
-                "src/utils/rolling_integral_image_test.cpp",
+                "fft_test.cpp",
+                "audio/audio_slicer_test.cpp",
+                "audio/ffmpeg_audio_reader_test.cpp",
+                "utils/base64_test.cpp",
+                "utils/rolling_integral_image_test.cpp",
                 // Supporting files
-                "src/CMakeLists.txt",
-                "src/utils/gen_bit_writer.py",
-                "src/utils/gen_bit_reader.py",
-                "src/utils/update_int_array_utils.sh"
+                "CMakeLists.txt",
+                "utils/gen_bit_writer.py",
+                "utils/gen_bit_reader.py",
+                "utils/update_int_array_utils.sh"
             ],
             sources: [
                 // Base
-                "src/audio_processor.cpp",
-                "src/chroma.cpp",
-                "src/chroma_resampler.cpp",
-                "src/chroma_filter.cpp",
-                "src/spectrum.cpp",
-                "src/fft.cpp",
-                "src/fingerprinter.cpp",
-                "src/image_builder.cpp",
-                "src/simhash.cpp",
-                "src/silence_remover.cpp",
-                "src/fingerprint_calculator.cpp",
-                "src/fingerprint_compressor.cpp",
-                "src/fingerprint_decompressor.cpp",
-                "src/fingerprinter_configuration.cpp",
-                "src/fingerprint_matcher.cpp",
-                "src/utils/base64.cpp",
-                "src/avresample/resample2.c",
+                "audio_processor.cpp",
+                "chroma.cpp",
+                "chroma_resampler.cpp",
+                "chroma_filter.cpp",
+                "spectrum.cpp",
+                "fft.cpp",
+                "fingerprinter.cpp",
+                "image_builder.cpp",
+                "simhash.cpp",
+                "silence_remover.cpp",
+                "fingerprint_calculator.cpp",
+                "fingerprint_compressor.cpp",
+                "fingerprint_decompressor.cpp",
+                "fingerprinter_configuration.cpp",
+                "fingerprint_matcher.cpp",
+                "utils/base64.cpp",
                 // vDSP
-                "src/fft_lib_vdsp.cpp",
+                "fft_lib_vdsp.cpp",
                 // Main
-                "src/chromaprint.cpp"
-            ],
-            cSettings: [
-                .define("HAVE_LRINTF"),
-                .unsafeFlags(["-Wno-conversion"], .when(platforms: [.iOS, .tvOS]))
+                "chromaprint.cpp"
             ],
             cxxSettings: [
                 .define("USE_VDSP"),
                 .define("HAVE_ROUND"),
-                .headerSearchPath("src"),
-                .unsafeFlags(["-Wno-macro-redefined"], .when(configuration: .debug))
+                .headerSearchPath(".")
             ],
             linkerSettings: [.linkedFramework("Accelerate")]
         ),
@@ -80,6 +78,5 @@ let package = Package(
             dependencies: ["CChromaprint"]
         )
     ],
-    cLanguageStandard: .c11,
     cxxLanguageStandard: .cxx11
 )

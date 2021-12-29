@@ -6,6 +6,6 @@ import CChromaprint
 
 class CChromaprintTests: XCTestCase {
     func testVersion() {
-        XCTAssertEqual(String(cString: chromaprint_get_version()), "1.5.0")
+        XCTAssertEqual(String(cString: chromaprint_get_version()), "1.5.1")
     }
 }
