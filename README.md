@@ -164,4 +164,4 @@ do {
 
 You can also `import CChromaprint` to directly interact with Chromaprints C interface. Please refer to the official documentation for further information.
 
-*Note: To avoid licensing issues, CChromaprint has internal input resampling disable and thus requires that input audio for the fingerprinter is already at the configured fingerprint sample rate.*
+*Note: To avoid licensing issues, CChromaprint has internal input resampling disabled and thus requires that input audio for the fingerprinter is already at the configured fingerprint sample rate.*
