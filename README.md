@@ -12,8 +12,6 @@ Swift wrapper for [Chromaprint](https://github.com/acoustid/chromaprint), the au
 
 Add `https://github.com/wallisch/ChromaSwift` as SwiftPM dependency and `import ChromaSwift`
 
-*Note: You can also `import CChromaprint` to directly interact with Chromaprints C interface*
-
 ## Usage
 
 ### Generating fingerprints
@@ -161,3 +159,9 @@ do {
     // AudioFingerprint.Error.invalidFingerprint
 }
 ```
+
+### Accessing Chromaprints C API
+
+You can also `import CChromaprint` to directly interact with Chromaprints C interface. Please refer to the official documentation for further information.
+
+*Note: To avoid licensing issues, CChromaprint has internal input resampling disable and thus requires that input audio for the fingerprinter is already at the configured fingerprint sample rate.*
