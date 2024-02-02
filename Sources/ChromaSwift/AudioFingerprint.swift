@@ -27,10 +27,10 @@ public class AudioFingerprint {
         case test5
     }
 
-    init(from rawFingerprint: [UInt32], algorithm: Algorithm, duration: Double) {
+    public init(from raw: [UInt32], algorithm: Algorithm, duration: Double) {
         self.algorithm = algorithm
         self.duration = duration
-        self.rawFingerprint = rawFingerprint
+        self.rawFingerprint = raw
     }
 
     public convenience init(from url: URL, algorithm: Algorithm = .test2, maxSampleDuration: Double? = 120) throws {
@@ -79,6 +79,10 @@ public class AudioFingerprint {
         }
 
         self.init(from: [UInt32](UnsafeBufferPointer(start: rawFingerprintPointer, count: Int(rawFingerprintSize))), algorithm: Algorithm(rawValue: algorithm)!, duration: duration)
+    }
+
+    public var raw: [UInt32] {
+        return rawFingerprint
     }
 
     public var base64: String {
