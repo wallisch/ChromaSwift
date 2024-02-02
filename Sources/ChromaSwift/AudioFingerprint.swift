@@ -54,16 +54,16 @@ public class AudioFingerprint {
         self.init(from: [UInt32](UnsafeBufferPointer(start: rawFingerprintPointer, count: Int(rawFingerprintSize))), algorithm: algorithm, duration: duration)
     }
 
-    public convenience init(from fingerprint: String, duration: Double) throws {
+    public convenience init(from base64: String, duration: Double) throws {
         if duration <= 0 {
             throw Error.invalidDuration
         }
 
-        if fingerprint.isEmpty {
+        if base64.isEmpty {
             throw Error.invalidFingerprint
         }
 
-        guard var mutableFingerprint = fingerprint.cString(using: .ascii) else {
+        guard var mutableBase64 = base64.cString(using: .ascii) else {
             throw Error.invalidFingerprint
         }
 
@@ -74,23 +74,28 @@ public class AudioFingerprint {
         var rawFingerprintSize = Int32(0)
         var algorithm = Int32(0)
 
-        if chromaprint_decode_fingerprint(&mutableFingerprint, Int32(mutableFingerprint.count), &rawFingerprintPointer, &rawFingerprintSize, &algorithm, 1) != 1 {
+        if chromaprint_decode_fingerprint(&mutableBase64, Int32(mutableBase64.count), &rawFingerprintPointer, &rawFingerprintSize, &algorithm, 1) != 1 {
             throw Error.invalidFingerprint
         }
 
         self.init(from: [UInt32](UnsafeBufferPointer(start: rawFingerprintPointer, count: Int(rawFingerprintSize))), algorithm: Algorithm(rawValue: algorithm)!, duration: duration)
     }
 
-    public var fingerprint: String {
-        var fingerprint: UnsafeMutablePointer<CChar>?  = UnsafeMutablePointer<CChar>.allocate(capacity: 1)
+    public var base64: String {
+        var base64Pointer: UnsafeMutablePointer<CChar>?  = UnsafeMutablePointer<CChar>.allocate(capacity: 1)
         defer {
-            fingerprint?.deallocate()
+            base64Pointer?.deallocate()
         }
-        var fingerprintSize = Int32(0)
+        var base64Size = Int32(0)
 
-        chromaprint_encode_fingerprint(&rawFingerprint, Int32(rawFingerprint.count), algorithm.rawValue, &fingerprint, &fingerprintSize, 1)
+        chromaprint_encode_fingerprint(&rawFingerprint, Int32(rawFingerprint.count), algorithm.rawValue, &base64Pointer, &base64Size, 1)
 
-        return String(cString: fingerprint!)
+        return String(cString: base64Pointer!)
+    }
+
+    @available(*, deprecated, renamed: "base64")
+    public var fingerprint: String {
+        return base64
     }
 
     var rawHash: UInt32 {

@@ -72,7 +72,7 @@ public class AcoustID {
             URLQueryItem(name: "client", value: apiKey),
             URLQueryItem(name: "meta", value: "recordings+releasegroups+compress"),
             URLQueryItem(name: "duration", value: String(UInt(fingerprint.duration))),
-            URLQueryItem(name: "fingerprint", value: fingerprint.fingerprint)
+            URLQueryItem(name: "fingerprint", value: fingerprint.base64)
         ]
         var lookupURLComponents = URLComponents(string: lookupEndpoint)!
         lookupURLComponents.queryItems = query
