@@ -58,7 +58,7 @@ let package = Package(
                 "silence_remover.cpp",
                 "utils/base64.cpp",
                 // vDSP
-                "fft_lib_vdsp.cpp",
+                "fft_lib_vdsp.cpp"
             ],
             cxxSettings: [
                 .define("USE_VDSP"),
