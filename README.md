@@ -53,16 +53,28 @@ Get the duration of the entire file in seconds
 let duration = testFingerprint.duration // 46.0
 ```
 
+Get the fingerprint in its raw form as an array of unsigned 32 bit integers
+
+``` swift
+let rawFingerprint = testFingerprint.raw // [4107342261, 4107276695, ... ]
+```
+
 Get the fingerprint as base64 representation
 
 ``` swift
-let base64FingerprintString = testFingerprint.fingerprint // "AQABYJGikFSmJBCPijt6Hq..."
+let base64FingerprintString = testFingerprint.base64 // "AQABYJGikFSmJBCPijt6Hq..."
 ```
 
 Get the fingerprints hash as binary string
 
 ``` swift
 let binaryHashString = testFingerprint.hash // "01110100010011101010100110100100"
+```
+
+Instantiate a fingerprint object from its raw form, algorithm and and entire file duration
+
+``` swift
+let newFingerprint = AudioFingerprint(from: rawFingerprint, algorithm: .test2, duration: duration)
 ```
 
 Instantiate a fingerprint object from its base64 representation and entire file duration
