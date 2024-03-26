@@ -32,9 +32,9 @@ jobs:
       with:
         submodules: true
     - name: Build
-      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild build-for-testing -scheme ChromaSwift -destination "platform=macos,arch=arm64" -enableCodeCoverage YES | xcbeautify
+      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild build-for-testing -scheme ChromaSwift -destination "platform=macos,arch=arm64" -enableCodeCoverage YES 2>&1 | xcbeautify --renderer github-actions
     - name: Test
-      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild test-without-building -scheme ChromaSwift -destination "platform=macos,arch=arm64" -enableCodeCoverage YES | xcbeautify
+      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild test-without-building -scheme ChromaSwift -destination "platform=macos,arch=arm64" -enableCodeCoverage YES 2>&1 | xcbeautify --renderer github-actions
     - name: Codecov upload
       uses: codecov/codecov-action@v4
       with:
@@ -54,9 +54,9 @@ jobs:
       with:
         submodules: true
     - name: Build
-      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild build-for-testing -scheme ChromaSwift -destination "platform=iOS Simulator,OS=latest,name=iPhone 15" | xcbeautify
+      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild build-for-testing -scheme ChromaSwift -destination "platform=iOS Simulator,OS=latest,name=iPhone 15" 2>&1 | xcbeautify --renderer github-actions
     - name: Test
-      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild test-without-building -scheme ChromaSwift -destination "platform=iOS Simulator,OS=latest,name=iPhone 15" | xcbeautify
+      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild test-without-building -scheme ChromaSwift -destination "platform=iOS Simulator,OS=latest,name=iPhone 15" 2>&1 | xcbeautify --renderer github-actions
 
   tvOS:
     name: tvOS
@@ -72,6 +72,6 @@ jobs:
       with:
         submodules: true
     - name: Build
-      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild build-for-testing -scheme ChromaSwift -destination "platform=tvOS Simulator,OS=latest,name=Apple TV" | xcbeautify
+      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild build-for-testing -scheme ChromaSwift -destination "platform=tvOS Simulator,OS=latest,name=Apple TV" 2>&1 | xcbeautify --renderer github-actions
     - name: Test
-      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild test-without-building -scheme ChromaSwift -destination "platform=tvOS Simulator,OS=latest,name=Apple TV" | xcbeautify
+      run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild test-without-building -scheme ChromaSwift -destination "platform=tvOS Simulator,OS=latest,name=Apple TV" 2>&1 | xcbeautify --renderer github-actions
