@@ -1,13 +1,10 @@
-// swift-tools-version:5.8
+// swift-tools-version:6.0
 import PackageDescription
 
 let package = Package(
     name: "ChromaSwift",
-    platforms: [.macOS(.v10_15), .iOS(.v12), .tvOS(.v12)],
+    platforms: [.macOS(.v12), .iOS(.v15), .tvOS(.v15)],
     products: [.library(name: "ChromaSwift", targets: ["ChromaSwift"])],
-    dependencies: [
-        .package(url: "https://github.com/venmo/DVR", from: "2.1.0")
-    ],
     targets: [
         .target(
             name: "ChromaSwift",
@@ -69,8 +66,8 @@ let package = Package(
         ),
         .testTarget(
             name: "ChromaSwiftTests",
-            dependencies: ["ChromaSwift", "DVR"],
-            resources: [.copy("Fixtures"), .copy("Audio")]
+            dependencies: ["ChromaSwift"],
+            resources: [.copy("Audio")]
         ),
         .testTarget(
             name: "CChromaprintTests",

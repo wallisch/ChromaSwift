@@ -6,7 +6,7 @@ import Foundation
 public class AcoustID {
     let lookupEndpoint = "https://api.acoustid.org/v2/lookup"
 
-    let session: URLSession
+    let session: URLSessionProtocol
     let apiKey: String
     let timeout: Double
 
@@ -57,17 +57,17 @@ public class AcoustID {
         public let title: String?
     }
 
-    init(apiKey: String, timeout: Double, session: URLSession) {
+    init(apiKey: String, timeout: Double, session: URLSessionProtocol) {
         self.session = session
         self.apiKey = apiKey
         self.timeout = timeout
     }
 
     public convenience init(apiKey: String, timeout: Double = 3.0) {
-        self.init(apiKey: apiKey, timeout: timeout, session: .shared)
+        self.init(apiKey: apiKey, timeout: timeout, session: URLSession.shared)
     }
 
-    public func lookup(_ fingerprint: AudioFingerprint, completion: @escaping (Result<[APIResult], Error>) -> Void) {
+    public func lookup(_ fingerprint: AudioFingerprint) async throws -> [APIResult] {
         let query = [
             URLQueryItem(name: "client", value: apiKey),
             URLQueryItem(name: "meta", value: "recordings+releasegroups+compress"),
@@ -78,41 +78,38 @@ public class AcoustID {
         lookupURLComponents.queryItems = query
 
         guard let lookupURL = lookupURLComponents.url else {
-            completion(.failure(Error.invalidURL))
-            return
+            throw Error.invalidURL
         }
         var request = URLRequest(url: lookupURL)
         request.timeoutInterval = timeout
 
-        session.dataTask(with: request) { (data, _, error) in
-            if error != nil {
-                completion(.failure(Error.networkFail))
-            } else if let data = data {
-                guard let decodedResponse = try? JSONDecoder().decode(APIResponse.self, from: data) else {
-                    completion(.failure(Error.parseFail))
-                    return
-                }
-                if let apiError = decodedResponse.error {
-                    switch apiError.code {
-                    case 3:
-                        completion(.failure(Error.invalidFingerprint))
-                    case 4:
-                        completion(.failure(Error.invalidApiKey))
-                    case 8:
-                        completion(.failure(Error.invalidDuration))
-                    case 14:
-                        completion(.failure(Error.tooManyRequests))
-                    default:
-                        completion(.failure(Error.apiFail))
-                    }
-                    return
-                }
-                guard let results = decodedResponse.results else {
-                    completion(.success([]))
-                    return
-                }
-                completion(.success(results))
+        guard let (data, _) = try? await session.data(for: request) else {
+            throw Error.networkFail
+        }
+
+        guard let decodedResponse = try? JSONDecoder().decode(APIResponse.self, from: data) else {
+            throw Error.parseFail
+        }
+
+        if let apiError = decodedResponse.error {
+            switch apiError.code {
+            case 3:
+                throw Error.invalidFingerprint
+            case 4:
+                throw Error.invalidApiKey
+            case 8:
+                throw Error.invalidDuration
+            case 14:
+                throw Error.tooManyRequests
+            default:
+                throw Error.apiFail
             }
-        }.resume()
+        }
+
+        guard let results = decodedResponse.results else {
+            return []
+        }
+
+        return results
     }
 }

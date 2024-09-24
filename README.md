@@ -1,7 +1,7 @@
 # ChromaSwift
 
 ![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20iOS%20%7C%20tvOS-inactive)
-[![Swift](https://img.shields.io/badge/Swift-5-orange)](https://swift.org/)
+[![Swift](https://img.shields.io/badge/Swift-6-orange)](https://swift.org/)
 [![SPM](https://img.shields.io/badge/SPM-compatible-success)](https://swift.org/package-manager/)
 [![Unit Tests](https://github.com/wallisch/ChromaSwift/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/wallisch/ChromaSwift/actions/workflows/unit_tests.yml)
 [![codecov](https://codecov.io/gh/wallisch/ChromaSwift/branch/master/graph/badge.svg?token=Y9IMV4347N)](https://codecov.io/gh/wallisch/ChromaSwift)
