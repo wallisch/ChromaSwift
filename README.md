@@ -124,53 +124,29 @@ let acoustID = AcoustID(apiKey: "zfkYWDrOqAk", timeout: 10.0)
 Lookup an AudioFingerprint object
 
 ``` swift
-acoustID.lookup(newFingerprint) { response in
-    switch response {
-    case .failure(let error):
-        // AcoustID.Error
-    case .success(let results):
-        // [AcoustID.APIResult]
-        for result in results {
-            // Matching score (0.0 to 1.0)
-            let score = result.score
-
-            for recording in result.recordings! {
-                // Song title
-                let title = recording.title
-
-                // Song artists
-                let artists = recording.artists
-
-                // Song release groups (Albums, Singles, etc.)
-                let releasegroups = recording.releasegroups
-            }
+do {
+    let results = try await acoustID.lookup(newFingerprint)
+    // [AcoustID.APIResult]
+    for result in results {
+        // Matching score (0.0 to 1.0)
+        let score = result.score
+        for recording in result.recordings! {
+            // Song title
+            let title = recording.title
+            // Song artists
+            let artists = recording.artists
+            // Song release groups (Albums, Singles, etc.)
+            let releasegroups = recording.releasegroups
         }
     }
+} catch {
+    // AcoustID.Error
 }
 ```
 
 ### Handling errors
 
-Throwing calls throw either an `AudioDecoder.Error`
-
-``` swift
-do {
-    let fileURL = URL(fileURLWithPath: "Invalid.mp3")
-    try AudioFingerprint(from: fileURL)
-} catch {
-    // AudioDecoder.Error.invalidFile
-}
-```
-
-Or an `AudioFingerprint.Error`
-
-``` swift
-do {
-    try AudioFingerprint(from: "Invalid", duration: 46.0)
-} catch {
-    // AudioFingerprint.Error.invalidFingerprint
-}
-```
+The `AudioFingerprint` class throws either `AudioDecoder.Error` or `AudioFingerprint.Error` errors, the `AcoustID` class throws `AcoustID.Error` errors.
 
 ### Accessing Chromaprints C API
 
