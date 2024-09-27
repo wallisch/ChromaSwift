@@ -1,6 +1,6 @@
-// Copyright (c) 2021 Philipp Wallisch
-// Copyright (c) 2016 David Dias
-// Distributed under the MIT license, see the LICENSE file for details.
+// Copyright 2016 David Dias
+// Copyright 2021 Philipp Wallisch
+// SPDX-License-Identifier: MIT
 
 import AVFoundation
 import CChromaprint

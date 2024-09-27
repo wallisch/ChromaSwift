@@ -1,5 +1,5 @@
-// Copyright (c) 2021 Philipp Wallisch
-// Distributed under the MIT license, see the LICENSE file for details.
+// Copyright 2021 Philipp Wallisch
+// SPDX-License-Identifier: MIT
 
 import XCTest
 import CChromaprint

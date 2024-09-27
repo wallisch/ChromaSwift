@@ -1,5 +1,5 @@
-// Copyright (c) 2024 Philipp Wallisch
-// Distributed under the MIT license, see the LICENSE file for details.
+// Copyright 2024 Philipp Wallisch
+// SPDX-License-Identifier: MIT
 
 import Foundation
 @testable import ChromaSwift

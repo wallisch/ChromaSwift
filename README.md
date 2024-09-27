@@ -153,3 +153,9 @@ The `AudioFingerprint` class throws either `AudioDecoder.Error` or `AudioFingerp
 You can also `import CChromaprint` to directly interact with Chromaprints C interface. Please refer to the official documentation for further information.
 
 *Note: To avoid licensing issues, CChromaprint has internal input resampling disabled and thus requires that input audio for the fingerprinter is already at the configured fingerprint sample rate.*
+
+### Licensing
+
+This package is distributed under the MIT license, see the LICENSE file for details.
+
+The chromaprint project by default includes resampling code from the ffmpeg library, which is licensed under LGPL 2.1. ChromaSwift however uses Apples AVFoundation for resampling and removes all ffmpeg code from the build, making the package fully MIT compliant.
