@@ -1,4 +1,4 @@
-// Copyright 2021 Philipp Wallisch
+// Copyright 2021, 2025 Philipp Wallisch
 // SPDX-License-Identifier: MIT
 
 import XCTest
